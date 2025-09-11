@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分数チャレンジ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .fraction-line {
+            border-bottom: 2px solid currentColor;
+            margin: 0 0.5rem;
+        }
+        .input-fraction .numerator, .input-fraction .denominator {
+            border: 2px solid transparent;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .input-fraction .numerator.active, .input-fraction .denominator.active {
+            border-color: #3b82f6; /* blue-500 */
+        }
+        .input-fraction .numerator.error, .input-fraction .denominator.error {
+            border-color: #ef4444; /* red-500 */
+            background-color: #fee2e2; /* red-100 */
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+            40%, 60% { transform: translate3d(3px, 0, 0); }
+        }
+        /* スクロールバーのスタイル */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9; /* slate-100 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* slate-400 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* slate-500 */
+        }
+        /* Hide number input arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen">
+
+    <div id="app" class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8 space-y-6">
+
+        <!-- 設定画面 -->
+        <div id="setup-screen">
+            <h1 class="text-3xl font-extrabold text-center text-slate-700 mb-6">分数チャレンジ</h1>
+            <div class="space-y-6">
+                <!-- 難易度 -->
+                <div>
+                    <h2 class="text-lg font-bold mb-2 text-slate-600">むずかしさ を えらぼう</h2>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setOption('difficulty', 'easy', this)" class="option-btn difficulty-btn p-3 rounded-lg font-bold transition-transform transform hover:scale-105 active bg-blue-500 text-white">かんたん</button>
+                        <button onclick="setOption('difficulty', 'medium', this)" class="option-btn difficulty-btn p-3 bg-slate-200 rounded-lg font-bold transition-transform transform hover:scale-105">ふつう</button>
+                        <button onclick="setOption('difficulty', 'hard', this)" class="option-btn difficulty-btn p-3 bg-slate-200 rounded-lg font-bold transition-transform transform hover:scale-105">むずかしい</button>
+                    </div>
+                </div>
+                <!-- 計算の種類 -->
+                <div>
+                    <h2 class="text-lg font-bold mb-2 text-slate-600">けいさん を えらぼう</h2>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setOption('operation', 'add', this)" class="option-btn operation-btn p-3 rounded-lg font-bold transition-transform transform hover:scale-105 active bg-blue-500 text-white">たしざん (+)</button>
+                        <button onclick="setOption('operation', 'subtract', this)" class="option-btn operation-btn p-3 bg-slate-200 rounded-lg font-bold transition-transform transform hover:scale-105">ひきざん (-)</button>
+                        <button onclick="setOption('operation', 'multiply', this)" class="option-btn operation-btn p-3 bg-slate-200 rounded-lg font-bold transition-transform transform hover:scale-105">かけざん (×)</button>
+                        <button onclick="setOption('operation', 'divide', this)" class="option-btn operation-btn p-3 bg-slate-200 rounded-lg font-bold transition-transform transform hover:scale-105">わりざん (÷)</button>
+                    </div>
+                </div>
+                <!-- 問題数 -->
+                <div>
+                    <h2 class="text-lg font-bold mb-2 text-slate-600">もんだいのかず を えらぼう</h2>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setOption('numQuestions', 5, this)" class="option-btn numQuestions-btn p-3 rounded-lg font-bold transition-transform transform hover:scale-105 active bg-blue-500 text-white">5もん</button>
+                        <button onclick="setOption('numQuestions', 10, this)" class="option-btn numQuestions-btn p-3 bg-slate-200 rounded-lg font-bold transition-transform transform hover:scale-105">10もん</button>
+                    </div>
+                </div>
+            </div>
+            <button id="start-game-btn" onclick="startGame()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-extrabold text-xl py-4 rounded-lg mt-8 transition-transform transform hover:scale-105">スタート！</button>
+        </div>
+
+        <!-- 問題画面 -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="question-counter" class="text-xl font-bold text-slate-600">1 / 10 もんめ</h2>
+                <div id="timer" class="text-lg font-mono text-slate-500">00:00</div>
+            </div>
+            
+            <!-- 問題表示 -->
+            <div id="problem-container" class="bg-slate-100 rounded-lg p-6 flex items-center justify-center text-4xl md:text-5xl font-extrabold mb-4 min-h-[120px]">
+                <!-- 問題がここに表示される -->
+            </div>
+
+            <!-- 回答入力 -->
+            <div class="flex items-center justify-center text-5xl font-extrabold my-6">
+                <div class="input-fraction flex flex-col items-center">
+                    <input id="numerator-input" type="number" min="0" onclick="setActiveInput('numerator')" class="numerator w-48 text-center bg-transparent rounded-lg p-2 placeholder:text-4xl" placeholder="ぶんし">
+                    <div class="fraction-line w-52"></div>
+                    <input id="denominator-input" type="number" min="0" onclick="setActiveInput('denominator')" class="denominator w-48 text-center bg-transparent rounded-lg p-2 placeholder:text-4xl" placeholder="ぶんぼ">
+                </div>
+            </div>
+
+            <!-- 電卓キーパッド -->
+            <div id="keypad" class="grid grid-cols-3 gap-2 mb-4">
+                <button onclick="inputNumber(1)" class="keypad-btn">1</button>
+                <button onclick="inputNumber(2)" class="keypad-btn">2</button>
+                <button onclick="inputNumber(3)" class="keypad-btn">3</button>
+                <button onclick="inputNumber(4)" class="keypad-btn">4</button>
+                <button onclick="inputNumber(5)" class="keypad-btn">5</button>
+                <button onclick="inputNumber(6)" class="keypad-btn">6</button>
+                <button onclick="inputNumber(7)" class="keypad-btn">7</button>
+                <button onclick="inputNumber(8)" class="keypad-btn">8</button>
+                <button onclick="inputNumber(9)" class="keypad-btn">9</button>
+                <button onclick="clearInput()" class="keypad-btn text-xl font-bold !bg-orange-400 hover:!bg-orange-500 text-white">C</button>
+                <button onclick="inputNumber(0)" class="keypad-btn">0</button>
+                <button onclick="backspace()" class="keypad-btn text-xl font-bold !bg-orange-400 hover:!bg-orange-500 text-white">⌫</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2">
+                 <button id="skip-btn" onclick="skipQuestion()" class="action-btn bg-slate-400 hover:bg-slate-500">スキップ</button>
+                 <button id="submit-btn" onclick="submitAnswer()" class="action-btn bg-blue-500 hover:bg-blue-600">けってい</button>
+            </div>
+        </div>
+
+        <!-- 結果画面 -->
+        <div id="result-screen" class="hidden">
+             <h1 class="text-3xl font-extrabold text-center text-slate-700 mb-4">けっか はっぴょう</h1>
+             <div class="bg-slate-100 rounded-lg p-4 mb-4 text-center space-y-2">
+                 <p class="text-lg">かかった じかん: <span id="total-time" class="font-bold text-2xl"></span></p>
+                 <p class="text-lg">せいかいりつ: <span id="accuracy-rate" class="font-bold text-2xl"></span></p>
+             </div>
+             <div id="results-list" class="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-2">
+                 <!-- 結果がここに表示される -->
+             </div>
+             <button onclick="restartGame()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-extrabold text-xl py-4 rounded-lg mt-6 transition-transform transform hover:scale-105">もういちど やる</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DOM要素 ---
+        const setupScreen = document.getElementById('setup-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const numeratorInput = document.getElementById('numerator-input');
+        const denominatorInput = document.getElementById('denominator-input');
+
+        // --- ゲームの状態管理 ---
+        let state = {
+            settings: {
+                difficulty: 'easy',
+                operation: 'add',
+                numQuestions: 5,
+            },
+            questions: [],
+            currentQuestionIndex: 0,
+            startTime: 0,
+            endTime: 0,
+            timerInterval: null,
+            activeInput: 'numerator', // 'numerator' or 'denominator'
+        };
+
+        // --- 初期設定 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // スタイル適用
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.add('transition', 'duration-200', 'ease-in-out');
+            });
+            document.querySelectorAll('.keypad-btn').forEach(btn => {
+                btn.className = 'p-4 bg-slate-200 rounded-lg text-2xl font-bold transition-transform transform hover:scale-105 active:scale-95';
+            });
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.className += ' text-white font-bold text-lg py-3 rounded-lg transition-transform transform hover:scale-105';
+            });
+             // 初期アクティブ状態を設定
+            setActiveInput('numerator');
+        });
+
+        // --- 便利な関数 (分数計算) ---
+        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+        const simplify = (frac) => {
+            if (frac.d === 0) return frac; // ゼロ除算はそのまま返す
+            const common = gcd(Math.abs(frac.n), Math.abs(frac.d));
+            return { n: frac.n / common, d: frac.d / common };
+        };
+        const isPrime = num => {
+            if (num < 2) return false;
+            for (let i = 2, s = Math.sqrt(num); i <= s; i++) {
+                if (num % i === 0) return false;
+            }
+            return true;
+        };
+        
+        // --- 設定画面のロジック ---
+        function setOption(type, value, element) {
+            state.settings[type] = value;
+            const targetClass = `${type}-btn`;
+            // Note: numQuestions-btn has a capital Q, this needs to be handled.
+            const buttons = document.querySelectorAll(type === 'numQuestions' ? '.numQuestions-btn' : `.${type}-btn`);
+            buttons.forEach(btn => btn.classList.remove('active', 'bg-blue-500', 'text-white'));
+            buttons.forEach(btn => btn.classList.add('bg-slate-200'));
+            element.classList.add('active', 'bg-blue-500', 'text-white');
+            element.classList.remove('bg-slate-200');
+        }
+
+        function startGame() {
+            state.currentQuestionIndex = 0;
+            state.questions = [];
+            
+            const startButton = document.getElementById('start-game-btn');
+            startButton.disabled = true;
+            startButton.textContent = 'もんだいを作成中...';
+
+            // 問題生成を非同期で行い、UIのフリーズを防ぐ
+            setTimeout(() => {
+                try {
+                    generateQuestions();
+                    setupScreen.classList.add('hidden');
+                    resultScreen.classList.add('hidden');
+                    quizScreen.classList.remove('hidden');
+                    displayQuestion();
+                    state.startTime = performance.now();
+                    state.timerInterval = setInterval(updateTimer, 10);
+                } catch (error) {
+                    console.error("問題の生成中にエラーが発生しました:", error);
+                    startButton.disabled = false;
+                    startButton.textContent = 'エラー発生。もういちどおしてください';
+                }
+            }, 10); // 10msの遅延でUIの更新を許可
+        }
+
+        // --- 問題生成ロジック ---
+
+        // 問題のユニークなキーを生成する（重複チェック用）
+        function getProblemKey(problem) {
+            const { terms, operation } = problem;
+            const opSymbols = { add: '+', subtract: '-', multiply: '×', divide: '÷' };
+            let processedTerms = [...terms];
+
+            if (operation === 'add' || operation === 'multiply') {
+                processedTerms.sort((a, b) => (a.n / a.d) - (b.n / b.d));
+            }
+           
+            return processedTerms.map(t => `${t.n}/${t.d}`).join(opSymbols[operation]);
+        }
+        
+        function generateQuestions() {
+            const generatedKeys = new Set(); 
+
+            for (let i = 0; i < state.settings.numQuestions; i++) {
+                let question;
+                let answer;
+                let problemKey;
+                let attempts = 0;
+                do {
+                    const questionParts = generateProblem();
+                    question = questionParts.problem;
+                    answer = questionParts.answer;
+                    problemKey = getProblemKey(question);
+                    
+                    attempts++;
+                    if(attempts > 500) { 
+                        console.error("重複しない問題の生成に失敗しました。");
+                        throw new Error("Could not generate a unique and valid question after 500 attempts.");
+                    }
+                } while (!isValidAnswer(answer) || generatedKeys.has(problemKey)); 
+                
+                generatedKeys.add(problemKey);
+
+                state.questions.push({
+                    problem: question,
+                    correctAnswer: answer,
+                    userAnswer: null,
+                    status: 'unanswered'
+                });
+            }
+        }
+
+        function isValidAnswer(answer){
+            if (answer.d === 1 || answer.n < 0) return false;
+
+            const { operation, difficulty } = state.settings;
+            if (operation === 'multiply' || operation === 'divide') {
+                if ((answer.n >= 300 && isPrime(answer.n)) || (answer.d >= 300 && isPrime(answer.d))) {
+                    return false;
+                }
+                if (difficulty === 'medium' || difficulty === 'hard') {
+                    if (answer.n >= 1000 || answer.d >= 1000) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        function generateProblem() {
+            const { difficulty, operation } = state.settings;
+            let terms = [];
+            let answer;
+            
+            const createFracTerm = (minN, maxN, minD, maxD) => {
+                let term;
+                do {
+                    term = randFrac(minN, maxN, minD, maxD);
+                } while (term.d === 1);
+                return term;
+            };
+
+            if (operation === 'add' || operation === 'subtract') {
+                if (difficulty === 'easy') {
+                    // (Omitted for brevity - unchanged)
+                    let n1, n2, d;
+                    let found = false;
+                    let attempts = 0; 
+                    while(!found && attempts < 100) {
+                        d = rand(2, 9);
+                        const validPairs = [];
+                        for (let i = 1; i < d; i++) {
+                            for (let j = 1; j < d; j++) {
+                                if (i === j) continue;
+                                let isValid = true;
+                                if (operation === 'add') {
+                                    if ((i + j) % d === 0) isValid = false;
+                                } else { 
+                                    if (Math.abs(i - j) % d === 0) isValid = false;
+                                }
+                                if (isValid) validPairs.push([i, j]);
+                            }
+                        }
+                        if (validPairs.length > 0) {
+                            const pair = validPairs[Math.floor(Math.random() * validPairs.length)];
+                            n1 = pair[0]; n2 = pair[1]; found = true;
+                        }
+                        attempts++;
+                    }
+                    if (!found) throw new Error("「かんたん」モードで有効な問題ペアを見つけられませんでした。");
+                    if (operation === 'subtract' && n1 < n2) [n1, n2] = [n2, n1];
+                    terms = [{n: n1, d: d}, {n: n2, d: d}];
+                } else if (difficulty === 'medium') {
+                    // (Omitted for brevity - unchanged)
+                    let term1, term2;
+                    do {
+                        term1 = createFracTerm(1, 25, 2, 25);
+                        term2 = createFracTerm(1, 25, 2, 25);
+                    } while ( term1.d === term2.d || (term1.n === term2.n && term1.d === term2.d) || gcd(term1.d, term2.d) <= 1);
+                    terms = [term1, term2];
+                     if (operation === 'subtract' && (terms[0].n / terms[0].d < terms[1].n / terms[1].d)) [terms[0], terms[1]] = [terms[1], terms[0]];
+                } else { // hard
+                    // (Omitted for brevity - unchanged)
+                     let generatedTerms; let isValidSet = false; let attempts = 0;
+                    do {
+                        generatedTerms = []; const usedDenominators = new Set();
+                        let creationAttempts = 0;
+                        while(generatedTerms.length < 3 && creationAttempts < 100) {
+                            const term = createFracTerm(1, 25, 2, 25);
+                            if (!usedDenominators.has(term.d)) { generatedTerms.push(term); usedDenominators.add(term.d); }
+                            creationAttempts++;
+                        }
+                        if(generatedTerms.length === 3) {
+                            const d1 = generatedTerms[0].d, d2 = generatedTerms[1].d, d3 = generatedTerms[2].d;
+                            const gcds = [gcd(d1, d2), gcd(d1, d3), gcd(d2, d3)];
+                            const validGcds = gcds.filter(g => g > 1);
+                            if (validGcds.length >= 2) {
+                                if (new Set(validGcds).size >= 2) isValidSet = true;
+                            }
+                        }
+                        attempts++;
+                        if (attempts > 200) throw new Error("「むずかしい」モードで有効な問題セットを見つけられませんでした。");
+                    } while (!isValidSet);
+                    terms = generatedTerms;
+                    if (operation === 'subtract') terms.sort((a,b) => (b.n/b.d) - (a.n/a.d));
+                }
+            } else { // multiply, divide
+                if (difficulty === 'easy') {
+                    terms = [createFracTerm(1, 9, 2, 9), createFracTerm(1, 9, 2, 9)];
+                } else { // medium or hard
+                    const numTerms = difficulty === 'hard' ? 3 : 2;
+                    let generatedTerms;
+                    let attempts = 0;
+                    let isValid = false;
+
+                    do {
+                        generatedTerms = [];
+                        const intIndex = Math.random() < 0.25 ? rand(0, numTerms - 1) : -1;
+                        for (let i = 0; i < numTerms; i++) {
+                            if (i === intIndex) {
+                                generatedTerms.push({ n: rand(2, 9), d: 1 });
+                            } else {
+                                let fracTerm;
+                                do { // Ensure fraction terms are not integers
+                                    fracTerm = { n: rand(1, 99), d: rand(2, 99) };
+                                } while (simplify(fracTerm).d === 1);
+                                generatedTerms.push(fracTerm);
+                            }
+                        }
+
+                        if (operation === 'multiply') {
+                            if (difficulty === 'medium') {
+                                isValid = gcd(generatedTerms[0].n, generatedTerms[1].d) > 1 || gcd(generatedTerms[1].n, generatedTerms[0].d) > 1;
+                            } else if (difficulty === 'hard') {
+                                let sharedLinks = 0;
+                                if (gcd(generatedTerms[0].n, generatedTerms[1].d) > 1) sharedLinks++;
+                                if (gcd(generatedTerms[0].n, generatedTerms[2].d) > 1) sharedLinks++;
+                                if (gcd(generatedTerms[1].n, generatedTerms[0].d) > 1) sharedLinks++;
+                                if (gcd(generatedTerms[1].n, generatedTerms[2].d) > 1) sharedLinks++;
+                                if (gcd(generatedTerms[2].n, generatedTerms[0].d) > 1) sharedLinks++;
+                                if (gcd(generatedTerms[2].n, generatedTerms[1].d) > 1) sharedLinks++;
+                                isValid = sharedLinks >= 2;
+                            }
+                        } else { // divide
+                            let rawAnswer;
+                            if (numTerms === 2) {
+                                rawAnswer = { n: generatedTerms[0].n * generatedTerms[1].d, d: generatedTerms[0].d * generatedTerms[1].n };
+                            } else { // 3 terms
+                                let temp = { n: generatedTerms[0].n * generatedTerms[1].d, d: generatedTerms[0].d * generatedTerms[1].n };
+                                rawAnswer = { n: temp.n * generatedTerms[2].d, d: temp.d * generatedTerms[2].n };
+                            }
+                            isValid = gcd(rawAnswer.n, rawAnswer.d) > 1;
+                        }
+                        attempts++;
+                        if (attempts > 200) throw new Error(`有効な問題を見つけられませんでした: ${difficulty} ${operation}`);
+                    } while (!isValid);
+                    terms = generatedTerms.map(t => simplify(t)); // 表示用に項を約分
+                }
+            }
+            
+            answer = calculate(terms, operation);
+            return { problem: { terms, operation }, answer };
+        }
+
+
+        function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function randFrac(minN, maxN, minD, maxD) {
+            const d = rand(minD, maxD);
+            const n = rand(minN, maxN);
+            return simplify({n, d});
+        }
+
+        function calculate(terms, operation) {
+            let result = terms[0];
+            for (let i = 1; i < terms.length; i++) {
+                const term = terms[i];
+                switch(operation) {
+                    case 'add':
+                        result = { n: result.n * term.d + term.n * result.d, d: result.d * term.d };
+                        break;
+                    case 'subtract':
+                        result = { n: result.n * term.d - term.n * result.d, d: result.d * term.d };
+                        break;
+                    case 'multiply':
+                        result = { n: result.n * term.n, d: result.d * term.d };
+                        break;
+                    case 'divide':
+                        result = { n: result.n * term.d, d: result.d * term.n };
+                        break;
+                }
+                result = simplify(result);
+            }
+            if (result.d < 0) { 
+                result.n *= -1;
+                result.d *= -1;
+            }
+            return simplify(result);
+        }
+
+        // --- 問題画面のロジック ---
+        function displayQuestion() {
+            const q = state.questions[state.currentQuestionIndex];
+            const container = document.getElementById('problem-container');
+            const opSymbols = { add: '+', subtract: '-', multiply: '×', divide: '÷' };
+            
+            const isThreeTerms = q.problem.terms.length === 3;
+
+            if (isThreeTerms) {
+                container.classList.remove('text-4xl', 'md:text-5xl');
+                container.classList.add('text-3xl', 'md:text-4xl');
+            } else {
+                container.classList.remove('text-3xl', 'md:text-4xl');
+                container.classList.add('text-4xl', 'md:text-5xl');
+            }
+            
+            const marginClass = isThreeTerms ? 'mx-1' : 'mx-2';
+            const lineWidthClass = isThreeTerms ? 'w-12' : 'w-16';
+
+            let html = q.problem.terms.map(term => {
+                if (term.d === 1) { // 整数として表示
+                    return `<div class="flex items-center justify-center ${marginClass}"><span>${term.n}</span></div>`;
+                }
+                // 分数として表示
+                return `
+                <div class="flex flex-col items-center ${marginClass}">
+                    <span class="numerator">${term.n}</span>
+                    <div class="fraction-line ${lineWidthClass}"></div>
+                    <span class="denominator">${term.d}</span>
+                </div>`;
+            }).join(`<span class="${marginClass} flex items-center">${opSymbols[q.problem.operation]}</span>`);
+
+            container.innerHTML = html + `<span class="${marginClass} flex items-center">=</span> <span class="text-slate-400">?</span>`;
+            document.getElementById('question-counter').textContent = `${state.currentQuestionIndex + 1} / ${state.settings.numQuestions} もんめ`;
+            resetInputs();
+        }
+
+
+        function updateTimer() {
+            const elapsed = (performance.now() - state.startTime) / 1000;
+            const totalSeconds = Math.floor(elapsed);
+            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+        }
+
+        function resetInputs() {
+            numeratorInput.value = '';
+            denominatorInput.value = '';
+            setActiveInput('numerator');
+        }
+
+        function setActiveInput(type) {
+            state.activeInput = type;
+            numeratorInput.classList.remove('active');
+            denominatorInput.classList.remove('active');
+            if (type === 'numerator') {
+                numeratorInput.classList.add('active');
+            } else {
+                denominatorInput.classList.add('active');
+            }
+        }
+        
+        function inputNumber(num) {
+            const targetInput = state.activeInput === 'numerator' ? numeratorInput : denominatorInput;
+            targetInput.value += num;
+        }
+
+        function backspace() {
+            const targetInput = state.activeInput === 'numerator' ? numeratorInput : denominatorInput;
+            targetInput.value = targetInput.value.slice(0, -1);
+        }
+        
+        function clearInput() {
+            const targetInput = state.activeInput === 'numerator' ? numeratorInput : denominatorInput;
+            targetInput.value = '';
+        }
+
+        function submitAnswer() {
+            numeratorInput.classList.remove('error');
+            denominatorInput.classList.remove('error');
+
+            const n = parseInt(numeratorInput.value);
+            const d = parseInt(denominatorInput.value);
+
+            let hasError = false;
+            if (isNaN(n)) {
+                numeratorInput.classList.add('error');
+                hasError = true;
+            }
+            if (isNaN(d)) {
+                denominatorInput.classList.add('error');
+                hasError = true;
+            } else if (d === 0) {
+                denominatorInput.classList.add('error');
+                hasError = true;
+            }
+
+            if (hasError) return;
+            
+            const currentQ = state.questions[state.currentQuestionIndex];
+            currentQ.userAnswer = {n, d};
+            const simplifiedUserAnswer = simplify({n, d});
+            if (simplifiedUserAnswer.n === currentQ.correctAnswer.n && simplifiedUserAnswer.d === currentQ.correctAnswer.d) {
+                currentQ.status = 'correct';
+            } else {
+                currentQ.status = 'incorrect';
+            }
+            nextQuestion();
+        }
+
+        function skipQuestion() {
+            state.questions[state.currentQuestionIndex].status = 'skipped';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            state.currentQuestionIndex++;
+            if (state.currentQuestionIndex >= state.settings.numQuestions) {
+                endGame();
+            } else {
+                displayQuestion();
+            }
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (quizScreen.classList.contains('hidden')) return;
+            if (e.key >= '0' && e.key <= '9') {
+                e.preventDefault();
+                inputNumber(parseInt(e.key));
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                backspace();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                submitAnswer();
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Tab') {
+                e.preventDefault();
+                setActiveInput(state.activeInput === 'numerator' ? 'denominator' : 'numerator');
+            }
+        });
+
+
+        // --- 結果画面のロジック ---
+        function endGame() {
+            state.endTime = performance.now();
+            clearInterval(state.timerInterval);
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            displayResults();
+        }
+        
+        function displayResults() {
+            const totalTime = ((state.endTime - state.startTime) / 1000).toFixed(3);
+            const correctAnswers = state.questions.filter(q => q.status === 'correct').length;
+            const accuracy = ((correctAnswers / state.settings.numQuestions) * 100).toFixed(0);
+            
+            document.getElementById('total-time').textContent = `${totalTime} びょう`;
+            document.getElementById('accuracy-rate').textContent = `${accuracy} %`;
+            
+            const resultsList = document.getElementById('results-list');
+            resultsList.innerHTML = `
+                <div class="flex font-bold text-slate-600 text-xs sm:text-sm text-center px-2 pb-2 border-b-2 border-slate-200">
+                    <div class="w-1/12">ばんごう</div>
+                    <div class="w-5/12">もんだい</div>
+                    <div class="w-2/12">あなたのこたえ</div>
+                    <div class="w-2/12">せいかい</div>
+                    <div class="w-2/12">けっか</div>
+                </div>
+            `;
+            
+            const opSymbols = { add: '+', subtract: '-', multiply: '×', divide: '÷' };
+
+            state.questions.forEach((q, index) => {
+                let statusSymbol, statusColor, answerText;
+
+                switch (q.status) {
+                    case 'correct': statusSymbol = '〇'; statusColor = 'text-green-500'; break;
+                    case 'incorrect': statusSymbol = '✕'; statusColor = 'text-red-500'; break;
+                    default: statusSymbol = '-'; statusColor = 'text-slate-500';
+                }
+                
+                if (q.userAnswer) {
+                     answerText = `<div class="flex flex-col items-center text-lg"><span>${q.userAnswer.n}</span><div class="fraction-line w-8"></div><span>${q.userAnswer.d}</span></div>`;
+                } else {
+                    answerText = '<span class="text-slate-500 text-base font-bold">みかいとう</span>';
+                }
+                
+                const problemText = q.problem.terms.map(term => {
+                    if (term.d === 1) { // 整数として表示
+                        return `<div class="flex items-center justify-center text-sm"><span>${term.n}</span></div>`;
+                    }
+                    return `
+                    <div class="flex flex-col items-center text-sm">
+                       <span>${term.n}</span><div class="fraction-line w-6"></div><span>${term.d}</span>
+                    </div>`;
+                }).join(`<span class="mx-1 text-sm flex items-center">${opSymbols[q.problem.operation]}</span>`);
+
+                const correctAnswerText = `
+                    <div class="flex flex-col items-center text-lg font-bold text-blue-600">
+                       <span>${q.correctAnswer.n}</span><div class="fraction-line w-8"></div><span>${q.correctAnswer.d}</span>
+                    </div>
+                `;
+
+                const resultItem = `
+                    <div class="bg-slate-50 p-2 rounded-lg flex items-center text-base min-h-[60px]">
+                        <div class="w-1/12 text-center font-bold text-slate-700">${index + 1}</div>
+                        <div class="w-5/12 flex justify-center items-center">${problemText}</div>
+                        <div class="w-2/12 flex justify-center items-center">${answerText}</div>
+                        <div class="w-2/12 flex justify-center items-center">${correctAnswerText}</div>
+                        <div class="w-2/12 text-center font-extrabold text-3xl ${statusColor}">${statusSymbol}</div>
+                    </div>
+                `;
+                resultsList.innerHTML += resultItem;
+            });
+        }
+        
+        function restartGame() {
+            resultScreen.classList.add('hidden');
+            setupScreen.classList.remove('hidden');
+
+            const startButton = document.getElementById('start-game-btn');
+            startButton.disabled = false;
+            startButton.textContent = 'スタート！';
+        }
+
+    </script>
+</body>
+</html>
