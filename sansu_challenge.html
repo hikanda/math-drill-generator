@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算数チャレンジ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+        /* キーボード入力時に青いアウトラインを消す */
+        input[type="number"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.6);
+        }
+        /* 数字ボタンのスタイル */
+        .num-button {
+            transition: all 0.1s ease-in-out;
+        }
+        .num-button:active {
+            transform: scale(0.95);
+            background-color: #e0e0e0;
+        }
+        /* Firefoxで入力欄の矢印を非表示にする */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        /* Chrome, Safari, Edge, Operaで入力欄の矢印を非表示にする */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-2xl mx-auto">
+        <!-- 設定画面 -->
+        <div id="settings-screen" class="bg-white p-8 rounded-2xl shadow-lg">
+            <h1 class="text-3xl font-bold text-center text-slate-800 mb-6">さんすうチャレンジ！</h1>
+            <p class="text-center text-slate-600 mb-8">もんだいの ないようを えらんでね。</p>
+            
+            <div class="space-y-6">
+                <!-- 桁数選択 -->
+                <div>
+                    <label for="max-digits" class="block text-xl font-bold text-slate-700 mb-2">かずの けた</label>
+                    <select id="max-digits" class="w-full p-3 text-lg border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition">
+                        <option value="1">1けた</option>
+                        <option value="2">2けたまで</option>
+                        <option value="3" selected>3けたまで</option>
+                        <option value="4">4けたまで</option>
+                        <option value="5">5けたまで</option>
+                    </select>
+                </div>
+
+                <!-- 計算の種類選択 -->
+                <div>
+                    <label class="block text-xl font-bold text-slate-700 mb-2">けいさんの しゅるい</label>
+                    <select id="operation" class="w-full p-3 text-lg border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition">
+                        <option value="add">たしざん (+)</option>
+                        <option value="subtract">ひきざん (-)</option>
+                        <option value="multiply">かけざん (×)</option>
+                        <option value="divide">わりざん (÷)</option>
+                    </select>
+                </div>
+
+                <!-- 問題数選択 -->
+                <div>
+                    <label class="block text-xl font-bold text-slate-700 mb-2">もんだいのかず</label>
+                    <select id="num-questions" class="w-full p-3 text-lg border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition">
+                        <option value="10">10もん</option>
+                        <option value="20">20もん</option>
+                        <option value="endless">おわるまで</option>
+                    </select>
+                    <p class="text-sm text-slate-500 mt-2">※「おわるまで」は さいだい200もんです。</p>
+                </div>
+            </div>
+
+            <button id="start-button" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-2xl py-4 rounded-lg mt-10 transition-transform transform hover:scale-105 shadow-md">はじめる！</button>
+        </div>
+
+        <!-- 問題画面 -->
+        <div id="quiz-screen" class="hidden bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="question-counter" class="text-xl font-bold text-slate-600"></h2>
+                <p id="timer" class="text-xl font-bold text-slate-600">けいかじかん: 00:00</p>
+                <button id="stop-button" class="hidden bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition">おわる</button>
+            </div>
+            
+            <div class="bg-slate-100 p-8 rounded-lg mb-6 text-center">
+                <p id="question-text" class="text-5xl font-bold text-slate-800 tracking-wider"></p>
+            </div>
+
+            <div class="relative mb-6">
+                <input type="number" id="answer-input" class="w-full text-4xl text-center p-4 border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition" placeholder="こたえ">
+            </div>
+
+            <!-- 電卓風ボタン -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <button data-key="7" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">7</button>
+                <button data-key="8" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">8</button>
+                <button data-key="9" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">9</button>
+                <button data-key="4" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">4</button>
+                <button data-key="5" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">5</button>
+                <button data-key="6" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">6</button>
+                <button data-key="1" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">1</button>
+                <button data-key="2" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">2</button>
+                <button data-key="3" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg">3</button>
+                <button data-key="0" class="num-button text-3xl font-bold bg-slate-200 p-5 rounded-lg col-span-2">0</button>
+                <button id="clear-button" class="text-3xl font-bold bg-yellow-400 hover:bg-yellow-500 p-5 rounded-lg">C</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button id="skip-button" class="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold text-xl py-4 rounded-lg transition-transform transform hover:scale-105">スキップ</button>
+                <button id="submit-button" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold text-xl py-4 rounded-lg transition-transform transform hover:scale-105">けってい</button>
+            </div>
+        </div>
+
+        <!-- 結果画面 -->
+        <div id="result-screen" class="hidden bg-white p-8 rounded-2xl shadow-lg">
+            <h1 class="text-3xl font-bold text-center text-slate-800 mb-2">けっか はっぴょう！</h1>
+            <p id="result-summary" class="text-center text-2xl font-bold text-blue-600 mb-2"></p>
+            <p id="total-time" class="text-center text-xl text-slate-600 mb-6"></p>
+            <p id="time-up-message" class="text-center text-xl font-bold text-red-600 mb-4"></p>
+
+            <div class="max-h-80 overflow-y-auto border-2 border-slate-200 rounded-lg p-4">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="p-3 text-lg font-bold">もんだい</th>
+                            <th class="p-3 text-lg font-bold">あなたのこたえ</th>
+                            <th class="p-3 text-lg font-bold">せいかい</th>
+                            <th class="p-3 text-lg font-bold">けっか</th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-details">
+                        <!-- 結果がここに挿入されます -->
+                    </tbody>
+                </table>
+            </div>
+
+            <button id="retry-button" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-2xl py-4 rounded-lg mt-8 transition-transform transform hover:scale-105">もういちど やる</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM要素の取得
+        const settingsScreen = document.getElementById('settings-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+
+        const maxDigitsSelect = document.getElementById('max-digits');
+        const operationSelect = document.getElementById('operation');
+        const numQuestionsSelect = document.getElementById('num-questions');
+        const startButton = document.getElementById('start-button');
+
+        const questionCounter = document.getElementById('question-counter');
+        const stopButton = document.getElementById('stop-button');
+        const questionText = document.getElementById('question-text');
+        const answerInput = document.getElementById('answer-input');
+        const skipButton = document.getElementById('skip-button');
+        const submitButton = document.getElementById('submit-button');
+        const timerDisplay = document.getElementById('timer');
+
+        const resultSummary = document.getElementById('result-summary');
+        const resultDetails = document.getElementById('result-details');
+        const retryButton = document.getElementById('retry-button');
+        const totalTimeDisplay = document.getElementById('total-time');
+
+        // アプリケーションの状態
+        let settings = {};
+        let problems = [];
+        let currentProblemIndex = 0;
+        let startTime;
+        let timerInterval;
+        let timeLimitTimeout; // 10分タイマー用
+        let isTimeUp = false; // 時間切れフラグ
+
+        // 特定の種類の問題が一度しか出ないようにするためのフラグ
+        let hasGeneratedMultiplyByZero = false;
+        let hasGeneratedMultiplyByOne = false;
+        let hasGeneratedDivideByZero = false;
+        let hasGeneratedDivideByOne = false;
+        let hasGeneratedSubtractByZero = false;
+
+        // --- イベントリスナー ---
+
+        // スタートボタン
+        startButton.addEventListener('click', startGame);
+
+        // 決定ボタン
+        submitButton.addEventListener('click', submitAnswer);
+        
+        // Enterキーでも決定できるようにする
+        answerInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+
+        // スキップボタン
+        skipButton.addEventListener('click', () => {
+            recordAnswer(null, 'skipped');
+            nextProblem();
+        });
+
+        // ストップボタン
+        stopButton.addEventListener('click', showResults);
+        
+        // もう一度やるボタン
+        retryButton.addEventListener('click', () => {
+            resultScreen.classList.add('hidden');
+            settingsScreen.classList.remove('hidden');
+            timerDisplay.textContent = 'けいかじかん: 00:00';
+        });
+
+        // 電卓ボタン
+        document.querySelector('.grid.grid-cols-3').addEventListener('click', (e) => {
+            const key = e.target.dataset.key;
+            if (key) {
+                answerInput.value += key;
+            }
+            if(e.target.id === 'clear-button'){
+                 answerInput.value = '';
+            }
+        });
+
+
+        // --- 関数 ---
+
+        // ゲーム開始
+        function startGame() {
+            settings = {
+                maxDigits: parseInt(maxDigitsSelect.value),
+                operation: operationSelect.value,
+                numQuestions: numQuestionsSelect.value === 'endless' ? Infinity : parseInt(numQuestionsSelect.value),
+            };
+
+            // 問題生成フラグと時間切れフラグをリセット
+            isTimeUp = false;
+            hasGeneratedMultiplyByZero = false;
+            hasGeneratedMultiplyByOne = false;
+            hasGeneratedDivideByZero = false;
+            hasGeneratedDivideByOne = false;
+            hasGeneratedSubtractByZero = false;
+
+            // 前のタイマーをクリア
+            clearTimeout(timeLimitTimeout);
+
+            currentProblemIndex = 0;
+            problems = [];
+            generateProblems();
+
+            settingsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            startTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+            updateTimer();
+            
+            if (settings.numQuestions === Infinity) {
+                stopButton.classList.remove('hidden');
+            } else {
+                stopButton.classList.add('hidden');
+                // 10問または20問選択時に10分の時間制限を設定
+                timeLimitTimeout = setTimeout(() => {
+                    isTimeUp = true;
+                    showResults();
+                }, 10 * 60 * 1000); // 10分
+            }
+
+            displayProblem();
+        }
+
+        // 問題の生成
+        function generateProblems() {
+            const numToGenerate = settings.numQuestions === Infinity ? 200 : settings.numQuestions; // エンドレスでもとりあえず200問生成
+            const generatedProblemSet = new Set(); // 重複チェック用
+            const maxAttempts = numToGenerate * 20; // 無限ループを避けるためのカウンター
+            let attempts = 0;
+
+            while (problems.length < numToGenerate && attempts < maxAttempts) {
+                const problem = createProblem();
+
+                // 2桁以上、または1桁の足し算・引き算の場合は重複チェックを行う
+                const needsDuplicateCheck = settings.maxDigits > 1 || 
+                                           (settings.maxDigits === 1 && (settings.operation === 'add' || settings.operation === 'subtract'));
+
+                if (needsDuplicateCheck) {
+                    // 重複チェックを行う
+                    const problemString = `${problem.num1} ${problem.operator} ${problem.num2}`;
+                    if (!generatedProblemSet.has(problemString)) {
+                        generatedProblemSet.add(problemString);
+                        problems.push(problem);
+                    }
+                } else {
+                    // 重複チェックが不要な場合 (1桁の掛け算、割り算)
+                    problems.push(problem);
+                }
+                attempts++;
+            }
+        }
+        
+        // 1問分の問題を作成
+        function createProblem() {
+            const maxNum = Math.pow(10, settings.maxDigits) - 1;
+            let num1 = 0;
+            let num2 = 0;
+            let answer = 0;
+            let operator = '';
+            
+            switch (settings.operation) {
+                case 'add':
+                    num1 = Math.floor(Math.random() * (maxNum + 1));
+                    num2 = Math.floor(Math.random() * (maxNum + 1));
+                    answer = num1 + num2;
+                    operator = '+';
+                    break;
+                case 'subtract':
+                    // 0を引く問題が複数回出ないようにする
+                    do {
+                        num1 = Math.floor(Math.random() * (maxNum + 1));
+                        num2 = Math.floor(Math.random() * (num1 + 1)); // 答えがマイナスにならないように
+                    } while (
+                        hasGeneratedSubtractByZero && num2 === 0
+                    );
+                    
+                    // 今回生成した問題が特別ルールに該当したらフラグを立てる
+                    if (num2 === 0) {
+                        hasGeneratedSubtractByZero = true;
+                    }
+                    
+                    answer = num1 - num2;
+                    operator = '-';
+                    break;
+                case 'multiply':
+                    // 簡単すぎる問題が複数回出ないようにする
+                    do {
+                        num1 = Math.floor(Math.random() * (maxNum + 1));
+                        num2 = Math.floor(Math.random() * (maxNum + 1));
+                    } while (
+                        // 0をかける問題は1回まで
+                        (hasGeneratedMultiplyByZero && (num1 === 0 || num2 === 0)) ||
+                        // 1桁のとき、1をかける問題は1回まで
+                        (settings.maxDigits === 1 && hasGeneratedMultiplyByOne && (num1 === 1 || num2 === 1)) ||
+                        // 2桁以上のとき、1をかける問題は禁止
+                        (settings.maxDigits > 1 && (num1 === 1 || num2 === 1))
+                    );
+                    
+                    // 今回生成した問題が特別ルールに該当したらフラグを立てる
+                    if (num1 === 0 || num2 === 0) {
+                        hasGeneratedMultiplyByZero = true;
+                    } else if (settings.maxDigits === 1 && (num1 === 1 || num2 === 1)) {
+                        hasGeneratedMultiplyByOne = true;
+                    }
+                    
+                    answer = num1 * num2;
+                    operator = '×';
+                    break;
+                case 'divide':
+                    let tempAnswer;
+                     // 簡単すぎる問題が複数回出ないようにしつつ、答えが割り切れる数を生成
+                    do {
+                        num2 = Math.floor(Math.random() * maxNum) + 1; // 割る数は1以上
+                        tempAnswer = Math.floor(Math.random() * (maxNum + 1)); // 答えは0もOK
+                        num1 = num2 * tempAnswer;
+                    } while (
+                        (num1 > maxNum) || // 割られる数が指定桁数を超えたらやり直し
+                        // 1,2桁のとき、1で割る問題は1回まで
+                        (settings.maxDigits < 3 && hasGeneratedDivideByOne && num2 === 1) ||
+                        // 3桁以上のとき、1で割る問題は禁止
+                        (settings.maxDigits >= 3 && num2 === 1) ||
+                        // 「0を割る問題」の制限：3桁以上では禁止、2桁以下では1回まで
+                        (num1 === 0 && (settings.maxDigits >= 3 || hasGeneratedDivideByZero)) ||
+                        // 2桁以上のとき、「同じ数で割る問題」は禁止
+                        (settings.maxDigits >= 2 && tempAnswer === 1)
+                    );
+
+                    // 今回生成した問題が特別ルールに該当したらフラグを立てる
+                    if (settings.maxDigits < 3 && num2 === 1) {
+                        hasGeneratedDivideByOne = true;
+                    } else if (num1 === 0) {
+                        hasGeneratedDivideByZero = true;
+                    }
+                    
+                    answer = tempAnswer;
+                    operator = '÷';
+                    break;
+            }
+
+            return { num1, num2, answer, operator, userAnswer: null, status: 'unanswered' };
+        }
+
+        // タイマー更新
+        function updateTimer() {
+            const now = new Date();
+            const elapsedTime = Math.floor((now - startTime) / 1000); // 秒単位
+            const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
+            const seconds = (elapsedTime % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `けいかじかん: ${minutes}:${seconds}`;
+        }
+
+        // 問題を表示
+        function displayProblem() {
+            if (currentProblemIndex >= problems.length) {
+                showResults();
+                return;
+            }
+
+            const problem = problems[currentProblemIndex];
+            questionText.textContent = `${problem.num1} ${problem.operator} ${problem.num2} =`;
+            answerInput.value = '';
+            answerInput.focus();
+
+            if (settings.numQuestions !== Infinity) {
+                questionCounter.textContent = `${currentProblemIndex + 1} / ${settings.numQuestions} もんめ`;
+            } else {
+                questionCounter.textContent = `${currentProblemIndex + 1} もんめ`;
+            }
+        }
+
+        // 回答を送信
+        function submitAnswer() {
+            const userAnswer = answerInput.value;
+            if (userAnswer === '') return; // 空の場合は何もしない
+            
+            const problem = problems[currentProblemIndex];
+            const isCorrect = parseInt(userAnswer) === problem.answer;
+            recordAnswer(parseInt(userAnswer), isCorrect ? 'correct' : 'incorrect');
+
+            nextProblem();
+        }
+        
+        // 回答を記録
+        function recordAnswer(answer, status) {
+            const problem = problems[currentProblemIndex];
+            problem.userAnswer = answer;
+            problem.status = status;
+        }
+
+        // 次の問題へ
+        function nextProblem() {
+            if (settings.numQuestions !== Infinity && currentProblemIndex + 1 >= settings.numQuestions) {
+                showResults();
+            } else {
+                currentProblemIndex++;
+                displayProblem();
+            }
+        }
+
+        // 結果を表示
+        function showResults() {
+            // 全てのタイマーを停止
+            clearInterval(timerInterval);
+            clearTimeout(timeLimitTimeout);
+
+            const endTime = new Date();
+            const totalMilliseconds = endTime - startTime;
+            const totalSeconds = Math.floor(totalMilliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const milliseconds = (totalMilliseconds % 1000).toString().padStart(3, '0');
+            
+            totalTimeDisplay.textContent = `トータルじかん: ${minutes}ふん ${seconds}.${milliseconds}びょう`;
+
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            // 時間切れメッセージの表示切替
+            const timeUpMessage = document.getElementById('time-up-message');
+            if (isTimeUp) {
+                timeUpMessage.textContent = '10ぷん じかんぎれのため、おわりました。';
+            } else {
+                timeUpMessage.textContent = '';
+            }
+
+            const answeredProblems = settings.numQuestions === Infinity 
+                ? problems.slice(0, currentProblemIndex + (problems[currentProblemIndex]?.status !== 'unanswered' ? 1 : 0))
+                : problems; // 10問・20問モードでは全ての問題を表示
+
+            const correctCount = answeredProblems.filter(p => p.status === 'correct').length;
+            const totalAnswered = answeredProblems.filter(p => p.status !== 'unanswered').length;
+            const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+            
+            resultSummary.textContent = `せいかいりつ: ${accuracy}% (${correctCount}/${totalAnswered} もんせいかい)`;
+            
+            resultDetails.innerHTML = ''; // テーブルをクリア
+
+            answeredProblems.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.classList.add('border-b');
+
+                let statusText, statusColor;
+                if (p.status === 'correct') {
+                    statusText = 'せいかい◎';
+                    statusColor = 'text-green-600';
+                } else if (p.status === 'incorrect') {
+                    statusText = 'まちがい×';
+                    statusColor = 'text-red-600';
+                } else {
+                    statusText = 'みかいとう';
+                    statusColor = 'text-slate-500';
+                }
+
+                const userAnswerText = p.userAnswer === null ? '（みかいとう）' : p.userAnswer;
+
+                tr.innerHTML = `
+                    <td class="p-3 text-lg">${p.num1} ${p.operator} ${p.num2}</td>
+                    <td class="p-3 text-lg">${userAnswerText}</td>
+                    <td class="p-3 text-lg font-bold">${p.answer}</td>
+                    <td class="p-3 text-lg font-bold ${statusColor}">${statusText}</td>
+                `;
+                resultDetails.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
+
