@@ -58,12 +58,24 @@
                 <!-- 計算の種類選択 -->
                 <div>
                     <label class="block text-xl font-bold text-slate-700 mb-2">けいさんの しゅるい</label>
-                    <select id="operation" class="w-full p-3 text-lg border-2 border-slate-300 rounded-lg focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition">
-                        <option value="add">たしざん (+)</option>
-                        <option value="subtract">ひきざん (-)</option>
-                        <option value="multiply">かけざん (×)</option>
-                        <option value="divide">わりざん (÷)</option>
-                    </select>
+                    <div id="operation-checkboxes" class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center space-x-3 p-3 border-2 border-slate-300 rounded-lg has-[:checked]:bg-blue-100 has-[:checked]:border-blue-500 transition">
+                            <input type="checkbox" name="operation" value="add" class="h-6 w-6" checked>
+                            <span class="text-lg">たしざん (+)</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 border-2 border-slate-300 rounded-lg has-[:checked]:bg-blue-100 has-[:checked]:border-blue-500 transition">
+                            <input type="checkbox" name="operation" value="subtract" class="h-6 w-6">
+                            <span class="text-lg">ひきざん (-)</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 border-2 border-slate-300 rounded-lg has-[:checked]:bg-blue-100 has-[:checked]:border-blue-500 transition">
+                            <input type="checkbox" name="operation" value="multiply" class="h-6 w-6">
+                            <span class="text-lg">かけざん (×)</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 border-2 border-slate-300 rounded-lg has-[:checked]:bg-blue-100 has-[:checked]:border-blue-500 transition">
+                            <input type="checkbox" name="operation" value="divide" class="h-6 w-6">
+                            <span class="text-lg">わりざん (÷)</span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- 問題数選択 -->
@@ -152,7 +164,6 @@
         const resultScreen = document.getElementById('result-screen');
 
         const maxDigitsSelect = document.getElementById('max-digits');
-        const operationSelect = document.getElementById('operation');
         const numQuestionsSelect = document.getElementById('num-questions');
         const startButton = document.getElementById('start-button');
 
@@ -232,9 +243,15 @@
 
         // ゲーム開始
         function startGame() {
+            const selectedOperations = Array.from(document.querySelectorAll('input[name="operation"]:checked')).map(cb => cb.value);
+            if (selectedOperations.length === 0) {
+                alert('けいさんの しゅるいを えらんでください。');
+                return;
+            }
+
             settings = {
                 maxDigits: parseInt(maxDigitsSelect.value),
-                operation: operationSelect.value,
+                operations: selectedOperations,
                 numQuestions: numQuestionsSelect.value === 'endless' ? Infinity : parseInt(numQuestionsSelect.value),
             };
 
@@ -283,14 +300,16 @@
 
             while (problems.length < numToGenerate && attempts < maxAttempts) {
                 const problem = createProblem();
+                const problemString = `${problem.num1} ${problem.operator} ${problem.num2}`;
+
+                // 演算子の記号から種類を特定
+                const problemOperation = {'+': 'add', '-': 'subtract', '×': 'multiply', '÷': 'divide'}[problem.operator];
 
                 // 2桁以上、または1桁の足し算・引き算の場合は重複チェックを行う
-                const needsDuplicateCheck = settings.maxDigits > 1 || 
-                                           (settings.maxDigits === 1 && (settings.operation === 'add' || settings.operation === 'subtract'));
+                const needsDuplicateCheck = settings.maxDigits > 1 ||
+                                           (settings.maxDigits === 1 && (problemOperation === 'add' || problemOperation === 'subtract'));
 
                 if (needsDuplicateCheck) {
-                    // 重複チェックを行う
-                    const problemString = `${problem.num1} ${problem.operator} ${problem.num2}`;
                     if (!generatedProblemSet.has(problemString)) {
                         generatedProblemSet.add(problemString);
                         problems.push(problem);
@@ -305,13 +324,14 @@
         
         // 1問分の問題を作成
         function createProblem() {
+            const operation = settings.operations[Math.floor(Math.random() * settings.operations.length)];
             const maxNum = Math.pow(10, settings.maxDigits) - 1;
             let num1 = 0;
             let num2 = 0;
             let answer = 0;
             let operator = '';
             
-            switch (settings.operation) {
+            switch (operation) {
                 case 'add':
                     num1 = Math.floor(Math.random() * (maxNum + 1));
                     num2 = Math.floor(Math.random() * (maxNum + 1));
