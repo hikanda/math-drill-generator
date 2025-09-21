@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ベン図メーカー</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Webフォントを読み込むための定義 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
+            /* ページ全体で使うフォントを定義 */
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
         }
+        /* 入力欄にフォーカスが当たった時のちょっとしたアニメーション */
         .control-panel input {
             transition: all 0.2s ease-in-out;
         }
@@ -96,24 +99,35 @@
                 </div>
 
                 <!-- 計算結果 -->
-                <div id="results-panel" class="pt-6 border-t border-gray-200 space-y-2 text-sm text-gray-700 h-48">
-                    <!-- 結果はJSで動的に挿入されます -->
+                <!-- パネルの高さを固定化し、初回描画と入力後のレイアウトずれを防ぐための工夫 -->
+                <div id="results-panel" class="pt-6 border-t border-gray-200 space-y-2 text-sm text-gray-700">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">計算結果</h3>
+                    <!-- 以下の各行はJSで数値を更新するだけの静的な構造 -->
+                    <div id="result-A" class="flex justify-between"><span>A</span><span class="font-semibold"></span></div>
+                    <div id="result-B" class="flex justify-between"><span>B</span><span class="font-semibold"></span></div>
+                    <div id="result-C" class="flex justify-between"><span>C</span><span class="font-semibold"></span></div>
+                    <div id="result-union" class="flex justify-between"><span></span><span class="font-semibold"></span></div>
+                    <div id="result-U" class="flex justify-between"><span>全体 (U)</span><span class="font-semibold"></span></div>
                 </div>
             </div>
 
             <!-- ベン図表示エリア -->
-            <div class="lg:col-span-2 flex items-center justify-center bg-gray-50 rounded-lg min-h-[300px] md:min-h-[400px]">
+            <!-- aspect-square で常に正方形を維持し、レイアウト崩れを防ぐ -->
+            <div class="lg:col-span-2 flex items-center justify-center bg-gray-50 rounded-lg aspect-square">
                 <canvas id="venn-canvas"></canvas>
             </div>
         </main>
     </div>
 
     <script>
+        // --- グローバル変数定義 ---
         const canvas = document.getElementById('venn-canvas');
         const ctx = canvas.getContext('2d');
         let mode = 'two'; // 'two' or 'three'
+        // CSSとCanvasで使うフォントを統一し、描画のずれを防ぐ
+        const FONT_FAMILY = "'Inter', 'Noto Sans JP', sans-serif";
 
-        // 入力要素
+        // --- DOM要素の取得 ---
         const inputs = {
             two: {
                 a_only: document.getElementById('val-a-only'),
@@ -137,8 +151,13 @@
         const threeSetsBtn = document.getElementById('three-sets-btn');
         const twoSetsInputs = document.getElementById('two-sets-inputs');
         const threeSetsInputs = document.getElementById('three-sets-inputs');
-        const resultsPanel = document.getElementById('results-panel');
 
+        // --- 関数定義 ---
+
+        /**
+         * 現在のモードに応じて、すべての入力欄から数値を取得する
+         * @returns {object} 各領域の数値を格納したオブジェクト
+         */
         function getValues() {
             const values = {};
             if (mode === 'two') {
@@ -153,49 +172,60 @@
             return values;
         }
 
+        /**
+         * 各集合の合計値や全体集合の値を計算し、結果パネルに表示する
+         * @param {object} values - getValues()で取得した数値オブジェクト
+         */
         function calculateResults(values) {
-            let results = {};
+            // HTMLにあらかじめ用意された要素を取得し、中の数値だけを更新する
+            const resA = document.querySelector('#result-A span:last-child');
+            const resB = document.querySelector('#result-B span:last-child');
+            const resC = document.querySelector('#result-C span:last-child');
+            const resUnionLabel = document.querySelector('#result-union span:first-child');
+            const resUnionVal = document.querySelector('#result-union span:last-child');
+            const resU = document.querySelector('#result-U span:last-child');
+            const resCRow = document.getElementById('result-C');
+
             if (mode === 'two') {
                 const a = values.a_only + values.a_and_b;
                 const b = values.b_only + values.a_and_b;
                 const a_or_b = values.a_only + values.b_only + values.a_and_b;
                 const u = a_or_b + values.outside;
-                results = {
-                    'A': a,
-                    'B': b,
-                    'AまたはB (A&cup;B)': a_or_b,
-                    '全体 (U)': u
-                };
+                
+                resA.textContent = a;
+                resB.textContent = b;
+                resUnionLabel.innerHTML = 'AまたはB (A&cup;B)';
+                resUnionVal.textContent = a_or_b;
+                resU.textContent = u;
+                // 2つの集合モードではCの行を非表示にする
+                resCRow.classList.add('hidden');
             } else {
                 const a = values.a_only + values.a_b_only + values.a_c_only + values.a_b_c;
                 const b = values.b_only + values.a_b_only + values.b_c_only + values.a_b_c;
                 const c = values.c_only + values.a_c_only + values.b_c_only + values.a_b_c;
                 const a_or_b_or_c = values.a_only + values.b_only + values.c_only + values.a_b_only + values.a_c_only + values.b_c_only + values.a_b_c;
                 const u = a_or_b_or_c + values.outside;
-                 results = {
-                    'A': a,
-                    'B': b,
-                    'C': c,
-                    'AまたはBまたはC (A&cup;B&cup;C)': a_or_b_or_c,
-                    '全体 (U)': u
-                };
-            }
 
-            resultsPanel.innerHTML = '<h3 class="font-bold text-lg mb-2 text-gray-800">計算結果</h3>';
-            for(const key in results) {
-                resultsPanel.innerHTML += `
-                    <div class="flex justify-between">
-                        <span>${key}</span>
-                        <span class="font-semibold">${results[key]}</span>
-                    </div>
-                `;
+                resA.textContent = a;
+                resB.textContent = b;
+                resC.textContent = c;
+                resUnionLabel.innerHTML = 'AまたはBまたはC (A&cup;B&cup;C)';
+                resUnionVal.textContent = a_or_b_or_c;
+                resU.textContent = u;
+                // 3つの集合モードではCの行を表示する
+                resCRow.classList.remove('hidden');
             }
         }
 
+        /**
+         * ベン図を描画するメイン関数
+         */
         function draw() {
+            // 先に計算と結果表示を行い、レイアウトを確定させる
             const values = getValues();
             calculateResults(values);
             
+            // requestAnimationFrameを使い、ブラウザの最適なタイミングで描画する
             requestAnimationFrame(() => {
                 const container = canvas.parentElement;
                 const size = Math.min(container.clientWidth, container.clientHeight);
@@ -204,10 +234,9 @@
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                if (size < 20) {
-                    return;
-                }
+                if (size < 20) return; // 小さすぎる場合は描画しない
                 
+                // --- 描画の基本設定 ---
                 const lineWidth = Math.max(1, size * 0.004); 
                 const margin = lineWidth * 3;
                 const drawRect = {
@@ -220,19 +249,21 @@
                 const centerY = drawRect.y + drawRect.height / 2;
                 const radius = drawRect.width / 4;
 
+                // --- 全体集合(U)の描画 ---
                 ctx.strokeStyle = '#888888';
                 ctx.lineWidth = lineWidth;
                 ctx.strokeRect(drawRect.x, drawRect.y, drawRect.width, drawRect.height);
 
                 const labelFontSize = Math.max(18, Math.min(radius * 0.4, 36)); 
                 ctx.fillStyle = '#333';
-                ctx.font = `${labelFontSize}px 'Inter', sans-serif`;
+                ctx.font = `${labelFontSize}px ${FONT_FAMILY}`;
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'top';
                 const uLabelX = drawRect.x + (labelFontSize * 0.25);
                 const uLabelY = drawRect.y + (labelFontSize * 0.25);
                 ctx.fillText('U', uLabelX, uLabelY);
 
+                // --- モードに応じて各ベン図を描画 ---
                 if (mode === 'two') {
                     drawTwoSetVenn(values, centerX, centerY, radius, labelFontSize);
                 } else {
@@ -241,92 +272,226 @@
             });
         }
         
+        /**
+         * 2つの集合のベン図を描画する
+         */
         function drawTwoSetVenn(values, centerX, centerY, radius, labelFontSize) {
-            let c1x, c2x, currentRadius;
             const cy = centerY;
-
             const shouldDrawA = (values.a_only + values.a_and_b) > 0;
             const shouldDrawB = (values.b_only + values.a_and_b) > 0;
 
-            if (shouldDrawA && !shouldDrawB) {
-                currentRadius = radius;
-                c1x = centerX;
-            } else if (!shouldDrawA && shouldDrawB) {
-                currentRadius = radius;
-                c2x = centerX;
-            } else if (shouldDrawA && shouldDrawB) {
-                if (values.a_and_b === 0) {
-                    currentRadius = radius * 0.8; 
-                    const gap = radius * 0.15;
-                    c1x = centerX - currentRadius - gap;
-                    c2x = centerX + currentRadius + gap;
-                } else {
-                    currentRadius = radius;
-                    c1x = centerX - radius / 2;
-                    c2x = centerX + radius / 2;
-                }
-            }
+            // --- 入力値に基づき、集合の関係を判定 ---
+            const isIdentical = shouldDrawA && shouldDrawB && values.a_only === 0 && values.b_only === 0 && values.a_and_b > 0; // A = B
+            const isASubsetOfB = shouldDrawA && shouldDrawB && values.a_only === 0 && values.a_and_b > 0; // A ⊂ B
+            const isBSubsetOfA = shouldDrawA && shouldDrawB && values.b_only === 0 && values.a_and_b > 0; // B ⊂ A
 
-            if (shouldDrawA) {
+            const textFontSize = Math.max(10, Math.min(radius * 0.25, 24));
+            
+            // --- 集合の関係に応じて、描画方法を分岐 ---
+
+            if (isIdentical) { // ケース1: AとBが等しい (A=B)
+                const currentRadius = radius;
                 ctx.globalAlpha = 0.2;
-                ctx.fillStyle = '#2563eb';
+                ctx.fillStyle = '#8b5cf6'; // 紫色で表現
                 ctx.beginPath();
-                ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
+                ctx.arc(centerX, cy, currentRadius, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.globalAlpha = 1.0;
-                ctx.strokeStyle = '#1d4ed8';
+                ctx.strokeStyle = '#6d28d9';
                 ctx.beginPath();
-                ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
+                ctx.arc(centerX, cy, currentRadius, 0, 2 * Math.PI);
                 ctx.stroke();
-            }
-            
-            if (shouldDrawB) {
+
+                ctx.fillStyle = '#000';
+                ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(values.a_and_b, centerX, cy);
+                
+                ctx.font = `${labelFontSize}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#6d28d9';
+                ctx.fillText('A = B', centerX, cy - currentRadius - (labelFontSize * 0.5));
+
+            } else if (isASubsetOfB) { // ケース2: AがBの部分集合 (A⊂B)
+                const outerRadius = radius;
+                const innerRadius = radius * 0.5;
+                const shift = outerRadius * 0.35; // 内側の円を少しずらす
+                const innerCenterX = centerX - shift;
+                
+                // 外側の円B
                 ctx.globalAlpha = 0.2;
                 ctx.fillStyle = '#dc2626';
                 ctx.beginPath();
-                ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
+                ctx.arc(centerX, cy, outerRadius, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.globalAlpha = 1.0;
                 ctx.strokeStyle = '#991b1b';
                 ctx.beginPath();
-                ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
+                ctx.arc(centerX, cy, outerRadius, 0, 2 * Math.PI);
                 ctx.stroke();
-            }
 
-            const textFontSize = Math.max(10, Math.min(radius * 0.25, 24));
-            ctx.fillStyle = '#000';
-            ctx.font = `500 ${textFontSize}px 'Inter', sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+                // 内側の円A
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#2563eb';
+                ctx.beginPath();
+                ctx.arc(innerCenterX, cy, innerRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = '#1d4ed8';
+                ctx.beginPath();
+                ctx.arc(innerCenterX, cy, innerRadius, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#000';
+                ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // 数値の位置を調整して重なりを防ぐ
+                ctx.fillText(values.b_only, centerX + outerRadius * 0.4, cy);
+                ctx.fillText(values.a_and_b, innerCenterX, cy + innerRadius * 0.3);
+                
+                // ラベルも円の内側と外側に分けて表示
+                ctx.font = `${labelFontSize}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#1d4ed8';
+                ctx.fillText('A', innerCenterX, cy - innerRadius * 0.4);
+                ctx.fillStyle = '#991b1b';
+                ctx.fillText('B', centerX + outerRadius * 0.85, cy - outerRadius * 0.85);
 
-            if (shouldDrawA && !shouldDrawB) {
-                ctx.fillText(values.a_only, c1x, cy);
-            } else if (!shouldDrawA && shouldDrawB) {
-                ctx.fillText(values.b_only, c2x, cy);
-            } else if (shouldDrawA && shouldDrawB) {
-                if (values.a_and_b === 0) {
+            } else if (isBSubsetOfA) { // ケース3: BがAの部分集合 (B⊂A)
+                const outerRadius = radius;
+                const innerRadius = radius * 0.5;
+                const shift = outerRadius * 0.35;
+                const innerCenterX = centerX + shift;
+                
+                // 外側の円A
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#2563eb';
+                ctx.beginPath();
+                ctx.arc(centerX, cy, outerRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = '#1d4ed8';
+                ctx.beginPath();
+                ctx.arc(centerX, cy, outerRadius, 0, 2 * Math.PI);
+                ctx.stroke();
+
+                // 内側の円B
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.arc(innerCenterX, cy, innerRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = '#991b1b';
+                ctx.beginPath();
+                ctx.arc(innerCenterX, cy, innerRadius, 0, 2 * Math.PI);
+                ctx.stroke();
+
+                ctx.fillStyle = '#000';
+                ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                ctx.fillText(values.a_only, centerX - outerRadius * 0.4, cy);
+                ctx.fillText(values.a_and_b, innerCenterX, cy + innerRadius * 0.3);
+                
+                ctx.font = `${labelFontSize}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#991b1b';
+                ctx.fillText('B', innerCenterX, cy - innerRadius * 0.4);
+                ctx.fillStyle = '#1d4ed8';
+                ctx.fillText('A', centerX - outerRadius * 0.85, cy - outerRadius * 0.85);
+
+            } else { // ケース4: その他の場合 (重なり、離れている、片方のみなど)
+                let c1x, c2x, currentRadius;
+                if (shouldDrawA && !shouldDrawB) {
+                    currentRadius = radius;
+                    c1x = centerX;
+                } else if (!shouldDrawA && shouldDrawB) {
+                    currentRadius = radius;
+                    c2x = centerX;
+                } else if (shouldDrawA && shouldDrawB) {
+                    if (values.a_and_b === 0) { // 共通部分がない場合
+                        // 円のサイズを少し小さくし、間隔を空ける
+                        currentRadius = radius * 0.8; 
+                        const gap = radius * 0.15;
+                        c1x = centerX - currentRadius - gap;
+                        c2x = centerX + currentRadius + gap;
+                    } else { // 共通部分がある場合
+                        currentRadius = radius;
+                        c1x = centerX - radius / 2;
+                        c2x = centerX + radius / 2;
+                    }
+                }
+
+                if (shouldDrawA) {
+                    ctx.globalAlpha = 0.2;
+                    ctx.fillStyle = '#2563eb';
+                    ctx.beginPath();
+                    ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                    ctx.strokeStyle = '#1d4ed8';
+                    ctx.beginPath();
+                    ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+                
+                if (shouldDrawB) {
+                    ctx.globalAlpha = 0.2;
+                    ctx.fillStyle = '#dc2626';
+                    ctx.beginPath();
+                    ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                    ctx.strokeStyle = '#991b1b';
+                    ctx.beginPath();
+                    ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = '#000';
+                ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                if (shouldDrawA && !shouldDrawB) {
                     ctx.fillText(values.a_only, c1x, cy);
+                } else if (!shouldDrawA && shouldDrawB) {
                     ctx.fillText(values.b_only, c2x, cy);
-                } else {
-                    ctx.fillText(values.a_only, c1x - currentRadius / 2, cy);
-                    ctx.fillText(values.b_only, c2x + currentRadius / 2, cy);
-                    ctx.fillText(values.a_and_b, centerX, cy);
+                } else if (shouldDrawA && shouldDrawB) {
+                    if (values.a_and_b === 0) {
+                        ctx.fillText(values.a_only, c1x, cy);
+                        ctx.fillText(values.b_only, c2x, cy);
+                    } else {
+                        ctx.fillText(values.a_only, c1x - currentRadius / 2, cy);
+                        ctx.fillText(values.b_only, c2x + currentRadius / 2, cy);
+                        ctx.fillText(values.a_and_b, centerX, cy);
+                    }
+                }
+                
+                ctx.font = `${labelFontSize}px ${FONT_FAMILY}`;
+                if (shouldDrawA) {
+                    ctx.fillStyle = '#1d4ed8';
+                    ctx.fillText('A', c1x - currentRadius * 0.85, cy - currentRadius * 0.85);
+                }
+                if (shouldDrawB) {
+                    ctx.fillStyle = '#991b1b';
+                    ctx.fillText('B', c2x + currentRadius * 0.85, cy - currentRadius * 0.85);
                 }
             }
             
+            // どの集合にも属さない数値を円の上部に表示
+            ctx.fillStyle = '#000';
+            ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             ctx.fillText(values.outside, centerX, centerY - radius * 1.5);
-
-            ctx.font = `${labelFontSize}px 'Inter', sans-serif`;
-            if (shouldDrawA) {
-                ctx.fillStyle = '#1d4ed8';
-                ctx.fillText('A', c1x - currentRadius * 0.85, cy - currentRadius * 0.85);
-            }
-            if (shouldDrawB) {
-                ctx.fillStyle = '#991b1b';
-                ctx.fillText('B', c2x + currentRadius * 0.85, cy - currentRadius * 0.85);
-            }
         }
 
+        /**
+         * 3つの集合のベン図を描画する
+         */
         function drawThreeSetVenn(values, centerX, centerY, radius, labelFontSize, uLabelX, uLabelY) {
             const r = radius * 0.9;
             const offset = r * 0.5;
@@ -338,6 +503,7 @@
             const c3x = centerX + offset * Math.sqrt(3) / 2 + offset/2;
             const c3y = centerY + offset * 0.9; 
             
+            // 円の塗りつぶし
             ctx.globalAlpha = 0.2;
             ctx.fillStyle = '#2563eb';
             ctx.beginPath();
@@ -355,6 +521,7 @@
             ctx.fill();
             ctx.globalAlpha = 1.0;
             
+            // 円の枠線
             ctx.strokeStyle = '#1d4ed8';
             ctx.beginPath();
             ctx.arc(c1x, c1y, r, 0, Math.PI * 2);
@@ -371,11 +538,12 @@
             ctx.stroke();
 
             const textFontSize = Math.max(12, Math.min(r * 0.25, 24));
-            ctx.font = `500 ${textFontSize}px 'Inter', sans-serif`;
+            ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
             ctx.fillStyle = '#000';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
+            // 各領域に数値を配置
             ctx.fillText(values.a_only, c1x, c1y - r/2);
             ctx.fillText(values.b_only, c2x - r/2, c2y + r/2);
             ctx.fillText(values.c_only, c3x + r/2, c3y + r/2);
@@ -384,12 +552,14 @@
             ctx.fillText(values.b_c_only, centerX, centerY + r*0.8);
             ctx.fillText(values.a_b_c, centerX, centerY + r*0.3);
             
+            // どの集合にも属さない数値をUの右下に配置
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.fillText(values.outside, uLabelX + labelFontSize * 1.6, uLabelY + labelFontSize * 1.2);
             
+            // ラベル
             const labelFontSize3 = labelFontSize * 0.9;
-            ctx.font = `${labelFontSize3}px 'Inter', sans-serif`;
+            ctx.font = `${labelFontSize3}px ${FONT_FAMILY}`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
@@ -401,6 +571,9 @@
             ctx.fillText('C', c3x + r * 1.15, c3y - r * 0.3);
         }
 
+        /**
+         * 「2つの集合」と「3つの集合」モードを切り替える
+         */
         function switchMode(newMode) {
             mode = newMode;
             if (mode === 'two') {
@@ -425,6 +598,9 @@
             draw();
         }
 
+        /**
+         * 入力値が変更されたときに呼び出され、負の数を0に補正して再描画する
+         */
         function handleInput(event) {
             if (parseInt(event.target.value, 10) < 0) {
                 event.target.value = '0';
@@ -432,17 +608,21 @@
             draw();
         }
 
+        // --- イベントリスナーの設定 ---
         twoSetsBtn.addEventListener('click', () => switchMode('two'));
         threeSetsBtn.addEventListener('click', () => switchMode('three'));
 
         Object.values(inputs.two).forEach(input => input.addEventListener('input', handleInput));
         Object.values(inputs.three).forEach(input => input.addEventListener('input', handleInput));
         
-        // requestAnimationFrame を draw の外で呼び出すように変更
         window.addEventListener('resize', draw);
 
-        // Initial draw
-        draw();
+        // --- 初期化処理 ---
+        // Webフォントの読み込みが完了してから最初の描画を行う
+        // これにより、初回描画と入力後のフォントの違いによる表示のずれを完全に防ぐ
+        document.fonts.ready.then(() => {
+            draw();
+        });
     </script>
 </body>
 </html>
