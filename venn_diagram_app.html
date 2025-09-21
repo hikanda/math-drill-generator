@@ -43,19 +43,19 @@
                 <div id="two-sets-inputs" class="space-y-3">
                     <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-a-only" class="font-medium text-gray-700">Aのみ</label>
-                        <input type="number" id="val-a-only" value="10" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-a-only" value="10" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                     <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-b-only" class="font-medium text-gray-700">Bのみ</label>
-                        <input type="number" id="val-b-only" value="12" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-b-only" value="12" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                     <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-a-and-b" class="font-medium text-gray-700">AとB (A∩B)</label>
-                        <input type="number" id="val-a-and-b" value="5" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-a-and-b" value="5" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                     <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-outside-2" class="font-medium text-gray-700">AでもBでもない</label>
-                        <input type="number" id="val-outside-2" value="8" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-outside-2" value="8" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                 </div>
 
@@ -63,35 +63,35 @@
                 <div id="three-sets-inputs" class="space-y-3 hidden">
                     <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-a-only-3" class="font-medium">Aのみ</label>
-                        <input type="number" id="val-a-only-3" value="7" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-a-only-3" value="7" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                      <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-b-only-3" class="font-medium">Bのみ</label>
-                        <input type="number" id="val-b-only-3" value="8" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-b-only-3" value="8" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                      <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-c-only-3" class="font-medium">Cのみ</label>
-                        <input type="number" id="val-c-only-3" value="9" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-c-only-3" value="9" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                     <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-a-b-only" class="font-medium">AとBのみ</label>
-                        <input type="number" id="val-a-b-only" value="3" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-a-b-only" value="3" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                      <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-a-c-only" class="font-medium">AとCのみ</label>
-                        <input type="number" id="val-a-c-only" value="4" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-a-c-only" value="4" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                      <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-b-c-only" class="font-medium">BとCのみ</label>
-                        <input type="number" id="val-b-c-only" value="5" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-b-c-only" value="5" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                     <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-a-b-c" class="font-medium">AとBとC</label>
-                        <input type="number" id="val-a-b-c" value="2" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-a-b-c" value="2" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                     <div class="grid grid-cols-2 items-center gap-2">
                         <label for="val-outside-3" class="font-medium">AでもBでもCでもない</label>
-                        <input type="number" id="val-outside-3" value="6" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="number" id="val-outside-3" value="6" min="0" class="w-full p-2 border rounded-md text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                     </div>
                 </div>
 
@@ -199,6 +199,11 @@
             canvas.height = size;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 図を描画するには小さすぎる場合はここで処理を終了
+            if (size < 20) {
+                return;
+            }
 
             const values = getValues();
             
@@ -207,15 +212,15 @@
             const drawRect = {
                 x: margin,
                 y: margin,
-                width: canvas.width - margin * 2,
-                height: canvas.height - margin * 2
+                width: Math.max(0, canvas.width - margin * 2),
+                height: Math.max(0, canvas.height - margin * 2)
             };
             const centerX = drawRect.x + drawRect.width / 2;
             const centerY = drawRect.y + drawRect.height / 2;
             const radius = drawRect.width / 4;
 
             // Uの枠線
-            ctx.strokeStyle = '#888888'; // もう少し濃い灰色に変更
+            ctx.strokeStyle = '#888888';
             ctx.lineWidth = lineWidth;
             ctx.strokeRect(drawRect.x, drawRect.y, drawRect.width, drawRect.height);
 
@@ -238,46 +243,62 @@
         }
         
         function drawTwoSetVenn(values, centerX, centerY, radius, labelFontSize) {
-            const c1x = centerX - radius / 2;
-            const c2x = centerX + radius / 2;
+            let c1x, c2x, currentRadius;
             const cy = centerY;
+
+            // A∩Bの値によって円の位置と大きさを動的に変更
+            if (values.a_and_b === 0) {
+                // 円が重ならない場合: はみ出さないように半径を少し小さくし、円同士の間隔を確保
+                currentRadius = radius * 0.9;
+                c1x = centerX - currentRadius * 1.1; // 円の中心を離す
+                c2x = centerX + currentRadius * 1.1;
+            } else {
+                // 円が重なる場合
+                currentRadius = radius;
+                c1x = centerX - radius / 2;
+                c2x = centerX + radius / 2;
+            }
 
             // 円
             ctx.globalAlpha = 0.2;
             ctx.fillStyle = '#2563eb'; // blue-600
             ctx.beginPath();
-            ctx.arc(c1x, cy, radius, 0, 2 * Math.PI);
+            ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
             ctx.fill();
 
             ctx.fillStyle = '#dc2626'; // red-600
             ctx.beginPath();
-            ctx.arc(c2x, cy, radius, 0, 2 * Math.PI);
+            ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
             ctx.fill();
             ctx.globalAlpha = 1.0;
 
             // 枠線
             ctx.strokeStyle = '#1d4ed8'; // blue-800
             ctx.beginPath();
-            ctx.arc(c1x, cy, radius, 0, 2 * Math.PI);
+            ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
             ctx.stroke();
 
             ctx.strokeStyle = '#991b1b'; // red-800
             ctx.beginPath();
-            ctx.arc(c2x, cy, radius, 0, 2 * Math.PI);
+            ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
             ctx.stroke();
             
             // テキスト設定
-            const textFontSize = Math.max(10, Math.min(radius * 0.25, 24)); // フォントサイズを増加
+            const textFontSize = Math.max(10, Math.min(radius * 0.25, 24));
             ctx.fillStyle = '#000';
             ctx.font = `500 ${textFontSize}px 'Inter', sans-serif`; 
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
             // 数値
-            ctx.fillText(values.a_only, c1x - radius / 2, cy);
-            ctx.fillText(values.b_only, c2x + radius / 2, cy);
-            ctx.fillText(values.a_and_b, centerX, cy);
-            // AでもBでもない数値を円の上部に、さらに離して表示
+            if (values.a_and_b === 0) {
+                ctx.fillText(values.a_only, c1x, cy);
+                ctx.fillText(values.b_only, c2x, cy);
+            } else {
+                ctx.fillText(values.a_only, c1x - radius / 2, cy);
+                ctx.fillText(values.b_only, c2x + radius / 2, cy);
+                ctx.fillText(values.a_and_b, centerX, cy);
+            }
             ctx.fillText(values.outside, centerX, centerY - radius * 1.5);
             
             // ラベル
@@ -285,10 +306,10 @@
             ctx.font = `${labelFontSize}px 'Inter', sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('A', c1x - radius * 0.85, cy - radius * 0.85);
+            ctx.fillText('A', c1x - currentRadius * 0.85, cy - currentRadius * 0.85);
             
             ctx.fillStyle = '#991b1b';
-            ctx.fillText('B', c2x + radius * 0.85, cy - radius * 0.85);
+            ctx.fillText('B', c2x + currentRadius * 0.85, cy - currentRadius * 0.85);
         }
 
         function drawThreeSetVenn(values, centerX, centerY, radius, labelFontSize, uLabelX, uLabelY) {
@@ -401,12 +422,19 @@
             draw();
         }
 
+        function handleInput(event) {
+            if (parseInt(event.target.value, 10) < 0) {
+                event.target.value = '0';
+            }
+            draw();
+        }
+
         // イベントリスナー
         twoSetsBtn.addEventListener('click', () => switchMode('two'));
         threeSetsBtn.addEventListener('click', () => switchMode('three'));
 
-        Object.values(inputs.two).forEach(input => input.addEventListener('input', draw));
-        Object.values(inputs.three).forEach(input => input.addEventListener('input', draw));
+        Object.values(inputs.two).forEach(input => input.addEventListener('input', handleInput));
+        Object.values(inputs.three).forEach(input => input.addEventListener('input', handleInput));
         
         window.addEventListener('resize', draw);
 
