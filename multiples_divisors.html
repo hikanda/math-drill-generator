@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倍数・約数マスター</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+        .feedback-correct {
+            color: #15803d; /* green-700 */
+        }
+        .feedback-incorrect {
+            color: #b91c1c; /* red-700 */
+        }
+        .ampm-btn.selected {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            border-color: #1d4ed8; /* border-blue-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800 flex items-center justify-center min-h-screen">
+    <div id="app" class="w-full max-w-3xl mx-auto p-4 md:p-8">
+        
+        <!-- ホーム画面 -->
+        <div id="home-screen">
+            <header class="text-center mb-8">
+                <h1 class="text-4xl md:text-5xl font-bold text-blue-700">倍数・約数マスター</h1>
+                <p class="mt-2 text-gray-600">例題と演習問題で、倍数と約数をかんぺきにマスターしよう！</p>
+            </header>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 倍数 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-2">倍数</h2>
+                    <p class="mb-4 text-gray-600 flex-grow">ある数を1倍、2倍、3倍…とした数を見つける練習です。</p>
+                    <div class="grid grid-cols-2 gap-3 mt-auto">
+                        <button data-id="reidai1" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-400 hover:bg-blue-500 border-blue-600">
+                            例題
+                        </button>
+                        <button data-id="enshuu1" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-green-400 hover:bg-green-500 border-green-600">
+                            演習問題
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 公倍数 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-2">公倍数</h2>
+                    <p class="mb-4 text-gray-600 flex-grow">2つの数に共通する倍数（公倍数）を見つける練習です。</p>
+                    <div class="grid grid-cols-2 gap-3 mt-auto">
+                        <button data-id="reidai2" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-400 hover:bg-blue-500 border-blue-600">
+                            例題
+                        </button>
+                        <button data-id="enshuu2" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-green-400 hover:bg-green-500 border-green-600">
+                            演習問題
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 約数 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-2">約数</h2>
+                    <p class="mb-4 text-gray-600 flex-grow">ある数を割り切ることができる数を見つける練習です。</p>
+                    <div class="grid grid-cols-2 gap-3 mt-auto">
+                        <button data-id="reidai3" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-400 hover:bg-blue-500 border-blue-600">
+                            例題
+                        </button>
+                        <button data-id="enshuu3" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-green-400 hover:bg-green-500 border-green-600">
+                            演習問題
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 公約数 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-2">公約数</h2>
+                    <p class="mb-4 text-gray-600 flex-grow">2つの数に共通する約数（公約数）を見つける練習です。</p>
+                    <div class="grid grid-cols-2 gap-3 mt-auto">
+                        <button data-id="reidai4" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-400 hover:bg-blue-500 border-blue-600">
+                            例題
+                        </button>
+                        <button data-id="enshuu4" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-green-400 hover:bg-green-500 border-green-600">
+                            演習問題
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 実戦問題１ -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col md:col-span-2">
+                    <h2 class="text-2xl font-bold text-red-800 mb-2">実戦問題１</h2>
+                    <p class="mb-4 text-gray-600 flex-grow">倍数、公倍数、約数、公約数の基本的な問題から合計20問が出ます。</p>
+                    <div class="mt-auto">
+                        <button data-id="jissen1" class="w-full md:w-1/2 mx-auto text-lg px-6 py-2 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-red-500 hover:bg-red-600 border-red-700">
+                            実戦問題１に挑戦
+                        </button>
+                    </div>
+                </div>
+
+                 <!-- 公倍数の文章題 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-2">公倍数の文章題</h2>
+                    <p class="mb-4 text-gray-600 flex-grow">文章を読んで、最小公倍数の考え方を使う練習です。</p>
+                    <div class="grid grid-cols-2 gap-3 mt-auto">
+                         <button data-id="reidai5" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-400 hover:bg-blue-500 border-blue-600">
+                            例題
+                        </button>
+                        <button data-id="enshuu5" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-green-400 hover:bg-green-500 border-green-600">
+                            演習問題
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 公約数の文章題 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+                    <h2 class="text-2xl font-bold text-blue-800 mb-2">公約数の文章題</h2>
+                    <p class="mb-4 text-gray-600 flex-grow">文章を読んで、最大公約数の考え方を使う練習です。</p>
+                    <div class="grid grid-cols-2 gap-3 mt-auto">
+                         <button data-id="reidai6" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-400 hover:bg-blue-500 border-blue-600">
+                            例題
+                        </button>
+                        <button data-id="enshuu6" class="w-full text-lg px-3 py-1 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-green-400 hover:bg-green-500 border-green-600">
+                            演習問題
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 実戦問題２ -->
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col md:col-span-2">
+                    <h2 class="text-2xl font-bold text-red-800 mb-2">実戦問題２</h2>
+                    <p class="mb-4 text-gray-600 flex-grow">文章問題を中心とした、より難しい問題が10問出題されます。</p>
+                    <div class="mt-auto">
+                        <button data-id="jissen2" class="w-full md:w-1/2 mx-auto text-lg px-6 py-2 rounded-full shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-red-500 hover:bg-red-600 border-red-700">
+                            実戦問題２に挑戦
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 演習問題選択画面 -->
+        <div id="select-enshuu-screen" class="hidden">
+            <h2 id="select-enshuu-title" class="text-3xl font-bold text-center mb-8 text-blue-700"></h2>
+            <div id="select-enshuu-options" class="grid grid-cols-1 gap-6 max-w-md mx-auto"></div>
+            <div class="text-center mt-8">
+                <button id="back-to-home-from-select" class="px-6 py-3 rounded-lg shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 bg-gray-500 hover:bg-gray-600 text-white border-gray-700">メニューにもどる</button>
+            </div>
+        </div>
+
+        <!-- 問題画面 -->
+        <div id="problem-screen" class="hidden bg-white p-6 md:p-10 rounded-xl shadow-2xl">
+            <h2 id="problem-title" class="text-2xl md:text-3xl font-bold text-blue-800 mb-2"></h2>
+            <p id="problem-counter" class="text-gray-500 mb-6"></p>
+            <div id="problem-text" class="text-lg md:text-xl mb-6 bg-gray-100 p-4 rounded-lg"></div>
+            
+            <!-- 単一回答欄 -->
+            <div id="single-answer-container" class="mb-6">
+                <input type="text" id="answer-input" class="w-full p-3 border-2 border-gray-300 rounded-lg text-xl focus:border-blue-500 focus:ring focus:ring-blue-200 transition" placeholder="答えを入力 (例: 1, 2, 3)">
+            </div>
+            
+            <!-- 時刻回答欄 (演習5-3用) -->
+            <div id="time-answer-container" class="hidden mb-6 flex items-center justify-center gap-2">
+                <div id="ampm-buttons" class="flex gap-2">
+                    <button class="ampm-btn px-4 py-2 rounded-lg border-2 border-gray-300" data-value="午前">午前</button>
+                    <button class="ampm-btn px-4 py-2 rounded-lg border-2 border-gray-300" data-value="午後">午後</button>
+                </div>
+                <input type="text" id="hour-input" class="w-20 p-2 border-2 border-gray-300 rounded-lg text-lg text-center">
+                <span class="text-lg">時</span>
+                <input type="text" id="minute-input" class="w-20 p-2 border-2 border-gray-300 rounded-lg text-lg text-center">
+                <span class="text-lg">分</span>
+            </div>
+
+            <!-- 複数回答欄 (例題5, 6用) -->
+            <div id="multi-answer-container" class="mb-6 space-y-4"></div>
+            
+            <div id="feedback" class="text-xl font-bold mb-6 min-h-[3rem]"></div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <button id="check-btn" class="w-full px-6 py-3 rounded-lg shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-500 hover:bg-blue-600 border-blue-700">答え合わせ</button>
+                <button id="next-btn" class="w-full hidden px-6 py-3 rounded-lg shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-green-500 hover:bg-green-600 border-green-700">次の問題へ</button>
+                <button id="retry-btn" class="w-full hidden px-6 py-3 rounded-lg shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-green-500 hover:bg-green-600 border-green-700">もう一度挑戦</button>
+                <button id="back-to-select-btn" class="w-full hidden px-6 py-3 rounded-lg shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-500 hover:bg-blue-600 border-blue-700">別の問題を選択</button>
+                <button id="back-to-menu-btn" class="w-full px-6 py-3 rounded-lg shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 bg-gray-500 hover:bg-gray-600 text-white border-gray-700">メニューにもどる</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- ユーティリティ関数 ---
+        const utils = {
+            // minからmaxまでのランダムな整数を生成
+            getRandomInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+            
+            // nの倍数をcount個取得
+            getMultiples: (n, count) => Array.from({ length: count }, (_, i) => n * (i + 1)),
+            
+            // nの約数をすべて取得
+            getDivisors: (n) => {
+                const divisors = new Set();
+                for (let i = 1; i * i <= n; i++) {
+                    if (n % i === 0) {
+                        divisors.add(i);
+                        divisors.add(n / i);
+                    }
+                }
+                return Array.from(divisors).sort((a, b) => a - b);
+            },
+            
+            // 最大公約数 (GCD)
+            gcd: (a, b) => b === 0 ? a : utils.gcd(b, a % b),
+
+            // 最小公倍数 (LCM)
+            lcm: (a, b) => (a * b) / utils.gcd(a, b),
+
+            // 2つの数の公約数をすべて取得
+            getCommonDivisors: (a, b) => utils.getDivisors(utils.gcd(a, b)),
+            
+            // 2つの数の公倍数をcount個取得
+            getCommonMultiples: (a, b, count) => {
+                const leastCommonMultiple = utils.lcm(a, b);
+                return utils.getMultiples(leastCommonMultiple, count);
+            },
+            
+            // 配列をシャッフル
+            shuffleArray: (array) => {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        };
+
+        // --- 問題定義 ---
+        const problems = {
+            // --- 例題1 & 演習問題1 ---
+            'reidai1': {
+                title: '例題１：倍数',
+                maxQuestions: 1,
+                generate: () => {
+                    const n1 = utils.getRandomInt(2, 9);
+                    return {
+                        text: `<b>${n1}</b> の倍数を、小さいものから順に３つ書きなさい。`,
+                        data: { n1 },
+                    };
+                },
+                getAnswer: (q) => utils.getMultiples(q.data.n1, 3),
+            },
+            'enshuu1_1': {
+                title: '1. 基本的な倍数',
+                maxQuestions: 5,
+                generate: () => {
+                    const n2 = utils.getRandomInt(2, 99);
+                    return {
+                        text: `<b>${n2}</b> の倍数を、小さいものから順に３つ書きなさい。`,
+                        data: { n2 },
+                    };
+                },
+                getAnswer: (q) => utils.getMultiples(q.data.n2, 3),
+            },
+            'enshuu1_2': {
+                title: '2. 割り切れる数',
+                maxQuestions: 5,
+                generate: () => {
+                    const n3 = utils.getRandomInt(2, 20);
+                    return {
+                        text: `<b>${n3}</b> で割り切れる数を、小さいものから順に３つ書きなさい。`,
+                        data: { n3 },
+                    };
+                },
+                getAnswer: (q) => utils.getMultiples(q.data.n3, 3),
+            },
+            'enshuu1_3': {
+                title: '3. 最も近い倍数',
+                maxQuestions: 5,
+                generate: () => {
+                    let x, y, type;
+                    while (true) {
+                        x = utils.getRandomInt(3, 15);
+                        y = utils.getRandomInt(20, 99);
+                        type = utils.getRandomInt(1, 3);
+                        
+                        const lowerMultiple = Math.floor(y / x) * x;
+                        const higherMultiple = lowerMultiple + x;
+                        
+                        if (type === 3 && y - lowerMultiple === higherMultiple - y) continue; // 答えが2つある場合は再生成
+                        if (y === lowerMultiple || y === higherMultiple) continue; // yがxの倍数の場合は再生成
+
+                        break;
+                    }
+                    
+                    let text, answer;
+                    const lowerMultiple = Math.floor(y / x) * x;
+                    const higherMultiple = lowerMultiple + x;
+
+                    if (type === 1) {
+                        text = `<b>${y}</b> より小さい <b>${x}</b> の倍数の中で、最も <b>${y}</b> に近い数を求めなさい。`;
+                        answer = lowerMultiple;
+                    } else if (type === 2) {
+                        text = `<b>${y}</b> より大きい <b>${x}</b> の倍数の中で、最も <b>${y}</b> に近い数を求めなさい。`;
+                        answer = higherMultiple;
+                    } else {
+                        text = `<b>${x}</b> の倍数の中で、最も <b>${y}</b> に近い数を求めなさい。`;
+                        answer = (y - lowerMultiple < higherMultiple - y) ? lowerMultiple : higherMultiple;
+                    }
+                    return { text, data: { answer } };
+                },
+                getAnswer: (q) => [q.data.answer],
+            },
+            // --- 例題2 & 演習問題2 ---
+            'reidai2': {
+                title: '例題２：公倍数',
+                maxQuestions: 1,
+                generate: () => {
+                    const n1 = utils.getRandomInt(2, 10);
+                    let n2;
+                    do { n2 = utils.getRandomInt(2, 10); } while (n1 === n2 || utils.gcd(n1, n2) === Math.min(n1, n2));
+                    return {
+                        text: `<b>${n1}</b> と <b>${n2}</b> の最小公倍数を求めなさい。`,
+                        data: { n1, n2 },
+                    };
+                },
+                getAnswer: (q) => [utils.lcm(q.data.n1, q.data.n2)],
+            },
+            'enshuu2_1': {
+                title: '1. 最小公倍数',
+                maxQuestions: 5,
+                generate: () => {
+                    let n1, n2;
+                    if (Math.random() > 0.5) { // 互いに素
+                        n1 = utils.getRandomInt(2, 9);
+                        do { n2 = utils.getRandomInt(2, 9); } while (utils.gcd(n1, n2) !== 1);
+                    } else { // 公約数あり
+                        n1 = utils.getRandomInt(10, 50);
+                        n2 = n1 + utils.getRandomInt(2, 20);
+                    }
+                    return { text: `(<b>${n1}</b>, <b>${n2}</b>) の最小公倍数を求めなさい。`, data: { n1, n2 } };
+                },
+                getAnswer: (q) => [utils.lcm(q.data.n1, q.data.n2)],
+            },
+            'enshuu2_2': {
+                title: '2. ２つの数の公倍数',
+                maxQuestions: 5,
+                generate: () => {
+                    let n1, n2;
+                    do {
+                        n1 = utils.getRandomInt(2, 20);
+                        n2 = utils.getRandomInt(2, 20);
+                    } while (n1 === n2 || utils.lcm(n1, n2) > 100);
+                    return { text: `(<b>${n1}</b>, <b>${n2}</b>) の公倍数を、小さいものから順に３つ書きなさい。`, data: { n1, n2 } };
+                },
+                getAnswer: (q) => utils.getCommonMultiples(q.data.n1, q.data.n2, 3),
+            },
+            'enshuu2_3': {
+                title: '3. 文章問題',
+                maxQuestions: 5,
+                generate: () => {
+                    const type = utils.getRandomInt(1, 3);
+                    let n1, n2;
+                    do {
+                        n1 = utils.getRandomInt(4, 30);
+                        n2 = utils.getRandomInt(4, 30);
+                    } while (n1 === n2 || utils.lcm(n1, n2) > 150);
+
+                    let text, answer;
+                    const commonMultiples = utils.getCommonMultiples(n1, n2, 5);
+
+                    if (type === 1) {
+                        text = `<b>${n1}</b>で割っても<b>${n2}</b>で割っても割り切れる数の中で、一番小さい数を求めなさい。`;
+                        answer = [commonMultiples[0]];
+                    } else if (type === 2) {
+                        text = `<b>${n1}</b>で割っても<b>${n2}</b>で割っても割り切れる数を、小さいものから順に３つ書きなさい。`;
+                        answer = commonMultiples.slice(0, 3);
+                    } else {
+                        const z = utils.getRandomInt(100, 250);
+                        let closest = commonMultiples[0];
+                        for (const m of commonMultiples) {
+                            if (Math.abs(m - z) < Math.abs(closest - z)) {
+                                closest = m;
+                            }
+                        }
+                        text = `<b>${n1}</b>で割っても<b>${n2}</b>で割っても割り切れる数の中で、<b>${z}</b>に一番近い数を求めなさい。`;
+                        answer = [closest];
+                    }
+                    return { text, data: { answer } };
+                },
+                getAnswer: (q) => q.data.answer,
+            },
+            // --- 例題3 & 演習問題3 ---
+            'reidai3': {
+                title: '例題３：約数',
+                maxQuestions: 1,
+                generate: () => {
+                    const n1 = utils.getRandomInt(10, 20);
+                    return { text: `<b>${n1}</b> の約数を、全て書きなさい。`, data: { n1 } };
+                },
+                getAnswer: (q) => utils.getDivisors(q.data.n1),
+            },
+            'enshuu3_1': {
+                title: '1. 約数',
+                maxQuestions: 5,
+                generate: (context = {}) => {
+                    let targetCount;
+                    // 呼び出し元に応じてターゲットを決定
+                    if (state.currentProblemId === 'enshuu3_1') {
+                        targetCount = state.divisorCountTargets[state.currentQuestionIndex - 1];
+                    } else { // 実戦問題から呼ばれた場合
+                        targetCount = [2, 3, 4, 6, 8][utils.getRandomInt(0, 4)];
+                    }
+
+                    let n;
+                    let rangeMin = 4, rangeMax = 99;
+                    if (targetCount >= 8) {
+                        rangeMin = 24;
+                        rangeMax = 200;
+                    }
+                    // 無限ループを避けるためのカウンター
+                    let maxTries = 100; 
+                    let tries = 0;
+                    while (tries < maxTries) {
+                        n = utils.getRandomInt(rangeMin, rangeMax);
+                        const divisorsLength = utils.getDivisors(n).length;
+                        if (targetCount >= 8) {
+                            if (divisorsLength >= 8) break;
+                        } else {
+                            if (divisorsLength === targetCount) break;
+                        }
+                        tries++;
+                    }
+                    // もし見つからなかった場合（保険）
+                    if (tries === maxTries) {
+                         n = (targetCount >= 8) ? 24 : (targetCount === 6 ? 12 : 15);
+                    }
+                    return { text: `<b>${n}</b> の約数を、全て書きなさい。`, data: { n } };
+                },
+                getAnswer: (q) => utils.getDivisors(q.data.n),
+            },
+            'enshuu3_2': {
+                title: '2. 割り切れる数',
+                maxQuestions: 5,
+                generate: () => {
+                    let n;
+                    do { n = utils.getRandomInt(40, 200); } while (utils.getDivisors(n).length < 6);
+                    return { text: `<b>${n}</b> を割り切れる数を、全て書きなさい。`, data: { n } };
+                },
+                getAnswer: (q) => utils.getDivisors(q.data.n),
+            },
+            // --- 例題4 & 演習問題4 ---
+            'reidai4': {
+                title: '例題４：公約数',
+                maxQuestions: 1,
+                generate: () => {
+                    const n1 = utils.getRandomInt(10, 20);
+                    let n2;
+                    do { n2 = utils.getRandomInt(10, 20); } while (n1 === n2 || utils.gcd(n1, n2) === 1);
+                    return { text: `<b>${n1}</b> と <b>${n2}</b> の公約数を、全て書きなさい。`, data: { n1, n2 } };
+                },
+                getAnswer: (q) => utils.getCommonDivisors(q.data.n1, q.data.n2),
+            },
+            'enshuu4_1': {
+                title: '1. 2つの数の公約数',
+                maxQuestions: 5,
+                generate: () => {
+                    let n1, n2;
+                    do {
+                        n1 = utils.getRandomInt(10, 99);
+                        n2 = utils.getRandomInt(10, 99);
+                    } while (n1 === n2 || utils.gcd(n1, n2) === 1 || utils.getCommonDivisors(n1, n2).length > 4);
+                    return { text: `(<b>${n1}</b>, <b>${n2}</b>) の公約数を、全て書きなさい。`, data: { n1, n2 } };
+                },
+                getAnswer: (q) => utils.getCommonDivisors(q.data.n1, q.data.n2),
+            },
+            'enshuu4_2': {
+                title: '2. 文章問題',
+                maxQuestions: 5,
+                generate: () => {
+                    let n1, n2;
+                    do {
+                        n1 = utils.getRandomInt(20, 99);
+                        n2 = utils.getRandomInt(20, 99);
+                    } while (n1 === n2 || utils.getCommonDivisors(n1, n2).length < 4 || utils.getCommonDivisors(n1, n2).length > 6);
+                    return { text: `<b>${n1}</b> を割っても <b>${n2}</b> を割っても割り切れる数を、全て書きなさい。`, data: { n1, n2 } };
+                },
+                getAnswer: (q) => utils.getCommonDivisors(q.data.n1, q.data.n2),
+            },
+            'enshuu4_3': {
+                title: '3. 最大公約数',
+                maxQuestions: 5,
+                generate: () => {
+                    let n1, n2;
+                    do {
+                        n1 = utils.getRandomInt(20, 99);
+                        n2 = utils.getRandomInt(20, 99);
+                    } while (n1 === n2 || utils.gcd(n1, n2) < 10);
+                    return { text: `<b>${n1}</b> と <b>${n2}</b> の最大公約数を求めなさい。`, data: { n1, n2 } };
+                },
+                getAnswer: (q) => [utils.gcd(q.data.n1, q.data.n2)],
+            },
+            // --- 例題5 & 演習問題5 ---
+            'reidai5': {
+                title: '例題５：公倍数の文章題',
+                maxQuestions: 1,
+                isMultiAnswer: true, 
+                generate: () => {
+                    let h, w, n, a, b;
+                    while (true) {
+                        n = utils.getRandomInt(2, 5); 
+                        a = utils.getRandomInt(2, 7); 
+                        b = utils.getRandomInt(2, 7); 
+                        
+                        if (a === b || utils.gcd(a, b) !== 1) {
+                            continue;
+                        }
+                        
+                        h = n * a;
+                        w = n * b;
+
+                        if (h <= 15 && w <= 15) {
+                            break; 
+                        }
+                    }
+                    const lcm_val = utils.lcm(h, w);
+                    const text = `縦が<b>${h}</b>cm、横が<b>${w}</b>cm の長方形のタイルをならべて、できるだけ小さい正方形を作ります。ただし、タイルは全て同じ向きに並べるものとし、回転させないものとします。`;
+                    const subQuestions = [
+                        { text: '(1) 正方形の1辺を何cmにすればよいですか。', units: ['cm'] },
+                        { text: '(2) 長方形のタイルは縦に何枚、横に何枚並びますか。', units: ['枚', '枚'], labels: ['縦に', '横に'] },
+                        { text: '(3) 長方形のタイルは全部で何枚必要ですか。', units: ['枚'] }
+                    ];
+                    return { text, subQuestions, data: { h, w, lcm_val } };
+                },
+                getAnswer: (q) => {
+                    const lcm_val = q.data.lcm_val;
+                    const h_count = lcm_val / q.data.h;
+                    const w_count = lcm_val / q.data.w;
+                    return [
+                        [lcm_val],
+                        [h_count, w_count],
+                        [h_count * w_count]
+                    ];
+                },
+            },
+             'enshuu5_1': {
+                title: '1. タイルをならべる問題',
+                isMultiAnswer: true,
+                generate: () => {
+                    let h, w, n, a, b;
+                    while (true) {
+                        n = utils.getRandomInt(2, 5);
+                        a = utils.getRandomInt(2, 7);
+                        b = utils.getRandomInt(2, 7);
+                        if (a === b || utils.gcd(a, b) !== 1) continue;
+                        h = n * a;
+                        w = n * b;
+                        if (h <= 15 && w <= 15) break;
+                    }
+                    const lcm_val = utils.lcm(h, w);
+                    const text = `縦が<b>${h}</b>cm、横が<b>${w}</b>cm の長方形のカードをならべて、できるだけ小さい正方形を作ります。ただし、カードは全て同じ向きに並べるものとし、回転させないものとします。`;
+                     const subQuestions = [
+                        { text: '(1) 正方形の1辺を何cmにすればよいですか。', units: ['cm'] },
+                        { text: '(2) 長方形のカードは縦に何枚、横に何枚並びますか。', units: ['枚', '枚'], labels: ['縦に', '横に'] },
+                        { text: '(3) 長方形のカードは全部で何枚必要ですか。', units: ['枚'] }
+                    ];
+                    return { text, subQuestions, data: { h, w, lcm_val } };
+                },
+                getAnswer: (q) => {
+                    const lcm_val = q.data.lcm_val;
+                    const h_count = lcm_val / q.data.h;
+                    const w_count = lcm_val / q.data.w;
+                    return [
+                        [lcm_val],
+                        [h_count, w_count],
+                        [h_count * w_count]
+                    ];
+                },
+            },
+            'enshuu5_2': {
+                title: '2. 同時に起きるできごと',
+                generate: () => {
+                    const items = [
+                        { a: "電車", b: "バス", unit: "分", template: (n1, n2, a, b, unit) => `ある駅を、${a}は<b>${n1}</b>${unit}おき、${b}は<b>${n2}</b>${unit}おきに発車します。ある時刻に２つが同時に発車したとすると、その後は何${unit}おきに同時に発車しますか。`},
+                        { a: "A駅行きのバス", b: "B駅行きのバス", unit: "分", template: (n1, n2, a, b, unit) => `${a}は<b>${n1}</b>${unit}おき、${b}は<b>${n2}</b>${unit}おきに発車します。ある時刻に２つが同時に発車したとすると、その後は何${unit}おきに同時に発車しますか。`},
+                        { a: "電柱", b: "木", unit: "m", template: (n1, n2, a, b, unit) => `道路にそって、${a}が<b>${n1}</b>${unit}おき、${b}が<b>${n2}</b>${unit}おきに立っています。はじめに${a}と${b}が同じ場所に立っているとすると、何${unit}おきに同じ場所に立つことになりますか。`}
+                    ];
+                    const choice = items[utils.getRandomInt(0, items.length - 1)];
+                    const n1 = utils.getRandomInt(2, 20);
+                    let n2;
+                    do { n2 = utils.getRandomInt(2, 20); } while (n1 === n2);
+
+                    const text = choice.template(n1, n2, choice.a, choice.b, choice.unit);
+                    return { text, data: { n1, n2 } };
+                },
+                getAnswer: (q) => [utils.lcm(q.data.n1, q.data.n2)],
+            },
+            'enshuu5_3': {
+                title: '3. 次にそろう時刻',
+                answerType: 'time',
+                generate: () => {
+                    const startHour24 = utils.getRandomInt(7, 17); // 7 AM to 5 PM
+                    const startMinute = utils.getRandomInt(0, 5) * 10;
+                    
+                    const n1 = utils.getRandomInt(5, 25);
+                    let n2;
+                    do { n2 = utils.getRandomInt(5, 25); } while (n1 === n2);
+                    
+                    const lcm_val = utils.lcm(n1, n2);
+                    
+                    const startTotalMinutes = startHour24 * 60 + startMinute;
+                    const newTotalMinutes = startTotalMinutes + lcm_val;
+                    
+                    let newHour24 = Math.floor(newTotalMinutes / 60);
+                    const newMinute = newTotalMinutes % 60;
+                    newHour24 = newHour24 % 24;
+
+                    const startAmPm = startHour24 >= 12 ? '午後' : '午前';
+                    let displayStartHour = startHour24;
+                    if (startHour24 > 12) displayStartHour = startHour24 - 12;
+                    if (displayStartHour === 0) displayStartHour = 12;
+
+                    const newAmPm = newHour24 >= 12 ? '午後' : '午前';
+                    let displayNewHour = newHour24;
+                    if (newHour24 > 12) displayNewHour = newHour24 - 12;
+                    if (displayNewHour === 0) displayNewHour = 12;
+
+                    const text = `ある駅から、バスが<b>${n1}</b>分おき、電車が<b>${n2}</b>分おきに発車しています。${startAmPm}<b>${displayStartHour}</b>時<b>${startMinute}</b>分に両方が同時に発車しました。次に両方がそろうのは何時何分ですか。`;
+                    return { text, data: { newAmPm, newHour: displayNewHour, newMinute } };
+                },
+                getAnswer: (q) => [q.data.newAmPm, String(q.data.newHour), String(q.data.newMinute).padStart(2, '0')],
+            },
+            'enshuu5_4': {
+                title: '4. あてはまる数をさがす問題',
+                generate: () => {
+                    let n1, n2, lcm_val, targetNumber, lowerBound, upperBound;
+                    while (true) {
+                        n1 = utils.getRandomInt(3, 7);
+                        do {
+                            n2 = utils.getRandomInt(4, 9);
+                        } while (n1 === n2 || utils.gcd(n1, n2) !== 1);
+
+                        lcm_val = utils.lcm(n1, n2);
+                        
+                        const candidateMultiples = [];
+                        // Find multiples between 25 and 50
+                        for (let i = 1; ; i++) {
+                            const multiple = lcm_val * i;
+                            if (multiple >= 50) break;
+                             // We are looking for numbers that are at least 25
+                            if (multiple > 25) { 
+                                candidateMultiples.push(multiple);
+                            }
+                        }
+
+                        if (candidateMultiples.length === 0) continue;
+
+                        targetNumber = candidateMultiples[utils.getRandomInt(0, candidateMultiples.length - 1)];
+                        
+                        const prevMultiple = targetNumber - lcm_val;
+                        
+                        // The range for lowerBound must start at 25.
+                        const minLowerBound = Math.max(25, prevMultiple + 1);
+
+                        if (minLowerBound >= targetNumber) {
+                            continue;
+                        }
+
+                        lowerBound = utils.getRandomInt(minLowerBound, targetNumber - 1);
+                        
+                        const nextMultiple = targetNumber + lcm_val;
+                        
+                        // The range for upperBound must be less than the next multiple and less than 50.
+                        const maxUpperBound = Math.min(49, nextMultiple - 1);
+                        
+                        if (targetNumber + 1 > maxUpperBound) {
+                            continue;
+                        }
+
+                        upperBound = utils.getRandomInt(targetNumber + 1, maxUpperBound);
+                        
+                        if (upperBound - lowerBound < 5) {
+                            continue;
+                        }
+                        
+                        break;
+                    }
+                    
+                    const text = `さくらさんのクラスの人数は<b>${lowerBound}</b>人から<b>${upperBound}</b>人の間です。<b>${n1}</b>人ずつグループを作っても、<b>${n2}</b>人ずつグループを作っても、あまる人はいません。さくらさんのクラスの人数は何人ですか。`;
+                    return { text, data: { targetNumber } };
+                },
+                getAnswer: (q) => [q.data.targetNumber],
+            },
+            'enshuu5_5': {
+                title: '5. 3つの数の最小公倍数',
+                generate: () => {
+                    const n1 = utils.getRandomInt(2, 8);
+                    let n2, n3;
+                    do { n2 = utils.getRandomInt(3, 10); } while (n1 === n2);
+                    do { n3 = utils.getRandomInt(4, 12); } while (n3 === n1 || n3 === n2);
+                    const text = `(<b>${n1}</b>, <b>${n2}</b>, <b>${n3}</b>) の３つの数の最小公倍数を求めなさい。`;
+                    const answer = utils.lcm(utils.lcm(n1, n2), n3);
+                    return { text, data: { answer } };
+                },
+                getAnswer: (q) => [q.data.answer],
+            },
+            // --- 例題6 & 演習問題6 ---
+            'reidai6': {
+                title: '例題６：公約数の文章題',
+                maxQuestions: 1,
+                isMultiAnswer: true,
+                generate: () => {
+                    let q1, q2, n, a, b;
+                    while (true) {
+                        n = utils.getRandomInt(3, 10);
+                        a = utils.getRandomInt(2, 7);
+                        b = utils.getRandomInt(2, 7);
+                        if (a === b || utils.gcd(a, b) !== 1) continue;
+                        q1 = n * a;
+                        q2 = n * b;
+                        if (q1 < 100 && q2 < 100) break;
+                    }
+                    const items = [
+                        {a: "えんぴつ", b:"ノート", aUnit:"本", bUnit:"冊"},
+                        {a: "キャンディー", b:"チョコレート", aUnit:"個", bUnit:"個"},
+                        {a: "赤いボール", b:"白いボール", aUnit:"個", bUnit:"個"}
+                    ];
+                    const choice = items[utils.getRandomInt(0, items.length - 1)];
+
+                    const text = `${choice.a}が<b>${q1}</b>${choice.aUnit}、${choice.b}が<b>${q2}</b>${choice.bUnit}あります。この${choice.a}と${choice.b}を何人かの子供に同じ数ずつ、あまりが出ないように分けます。`;
+                    const subQuestions = [
+                        { text: '(1) できるだけ多くの子供に分けるとき、何人の子供に分けられますか。', units: ['人'] },
+                        { text: `(2) (1) のとき、1人分の${choice.a}は何${choice.aUnit}、${choice.b}は何${choice.bUnit}になりますか。`, units: [choice.aUnit, choice.bUnit], labels: [`${choice.a}は`, `${choice.b}は`] }
+                    ];
+                    return { text, subQuestions, data: { q1, q2, gcd_val: n } };
+                },
+                getAnswer: (q) => {
+                    const gcd_val = q.data.gcd_val;
+                    const q1_count = q.data.q1 / gcd_val;
+                    const q2_count = q.data.q2 / gcd_val;
+                    return [
+                        [gcd_val],
+                        [q1_count, q2_count]
+                    ];
+                },
+            },
+            'enshuu6_1': {
+                title: '1. アイテムを分ける問題',
+                isMultiAnswer: true,
+                generate: () => problems.reidai6.generate(), // reidai6と同じロジックを再利用
+                getAnswer: (q) => problems.reidai6.getAnswer(q),
+            },
+            'enshuu6_2': {
+                title: '2. タイルをしきつめる問題',
+                isMultiAnswer: true,
+                generate: () => {
+                    let h, w, n, a, b;
+                    while (true) {
+                        n = utils.getRandomInt(3, 12);
+                        a = utils.getRandomInt(2, 7);
+                        b = utils.getRandomInt(2, 7);
+                        if (a === b || utils.gcd(a, b) !== 1) continue;
+                        h = n * a;
+                        w = n * b;
+                        if (h < 100 && w < 100) break;
+                    }
+                    const text = `縦が<b>${h}</b>cm、横が<b>${w}</b>cmの長方形の場所に、同じ大きさの正方形のタイルをすきまができないように並べていきます。できるだけ大きなタイルをはんぱがでないようにはることにします。`;
+                    const subQuestions = [
+                        { text: '(1) 1辺が何cmの正方形のタイルをはればよいですか。', units: ['cm'] },
+                        { text: '(2) タイルは全部で何枚必要ですか。', units: ['枚'] }
+                    ];
+                    return { text, subQuestions, data: { gcd_val: n, tiles_count: a * b } };
+                },
+                getAnswer: (q) => [[q.data.gcd_val], [q.data.tiles_count]],
+            },
+            'enshuu6_3': {
+                title: '3. 木を植える問題',
+                isMultiAnswer: true,
+                generate: () => {
+                     let h, w, n, a, b;
+                    while (true) {
+                        n = utils.getRandomInt(3, 12);
+                        a = utils.getRandomInt(2, 7);
+                        b = utils.getRandomInt(2, 7);
+                        if (a === b || utils.gcd(a, b) !== 1) continue;
+                        h = n * a;
+                        w = n * b;
+                        if (h < 100 && w < 100) break;
+                    }
+                    const text = `縦が<b>${h}</b>m、横が<b>${w}</b>mの長方形の土地の周囲に同じ間かくで桜の木を植えます。4つの角に必ず桜の木を植えて、桜の本数を最も少なくなるように植えます。`;
+                    const subQuestions = [
+                        { text: '(1) 何mおきに桜の木を植えればよいですか。', units: ['m'] },
+                        { text: '(2) 桜の木は全部で何本必要ですか。', units: ['本'] }
+                    ];
+                     return { text, subQuestions, data: { gcd_val: n, tree_count: 2 * (a + b) } };
+                },
+                getAnswer: (q) => [[q.data.gcd_val], [q.data.tree_count]],
+            },
+            // --- 実戦問題1 ---
+            'jissen1': {
+                title: '実戦問題１',
+                maxQuestions: 20,
+            },
+             'jissen2': {
+                title: '実戦問題２',
+                maxQuestions: 10,
+            },
+            'enshuu5': {
+                title: '演習問題５：公倍数の文章題',
+                maxQuestions: 5,
+            },
+            'enshuu6': {
+                title: '演習問題６：公約数の文章題',
+                maxQuestions: 5,
+            }
+        };
+
+        const enshuuSets = {
+            'enshuu1': { title: "演習問題１：倍数", options: ['enshuu1_1', 'enshuu1_2', 'enshuu1_3'] },
+            'enshuu2': { title: "演習問題２：公倍数", options: ['enshuu2_1', 'enshuu2_2', 'enshuu2_3'] },
+            'enshuu3': { title: "演習問題３：約数", options: ['enshuu3_1', 'enshuu3_2'] },
+            'enshuu4': { title: "演習問題４：公約数", options: ['enshuu4_1', 'enshuu4_2', 'enshuu4_3'] },
+        };
+        
+        // --- アプリケーションの状態管理 ---
+        const state = {
+            currentProblemId: null,
+            currentQuestionIndex: 0,
+            currentQuestionData: null,
+            divisorCountTargets: [], 
+            jissenQuestionList: [], 
+        };
+
+        // --- DOM要素の取得 ---
+        const homeScreen = document.getElementById('home-screen');
+        const problemScreen = document.getElementById('problem-screen');
+        const selectEnshuuScreen = document.getElementById('select-enshuu-screen');
+        const selectEnshuuTitle = document.getElementById('select-enshuu-title');
+        const selectEnshuuOptions = document.getElementById('select-enshuu-options');
+
+        const problemTitle = document.getElementById('problem-title');
+        const problemCounter = document.getElementById('problem-counter');
+        const problemText = document.getElementById('problem-text');
+        
+        const singleAnswerContainer = document.getElementById('single-answer-container');
+        const answerInput = document.getElementById('answer-input');
+        const timeAnswerContainer = document.getElementById('time-answer-container');
+        const multiAnswerContainer = document.getElementById('multi-answer-container');
+
+        const feedback = document.getElementById('feedback');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const backToSelectBtn = document.getElementById('back-to-select-btn');
+        const backToMenuBtn = document.getElementById('back-to-menu-btn');
+        const backToHomeFromSelect = document.getElementById('back-to-home-from-select');
+        const ampmButtonsContainer = document.getElementById('ampm-buttons');
+
+
+        // --- 画面切り替え ---
+        function showScreen(screen) {
+            homeScreen.classList.add('hidden');
+            problemScreen.classList.add('hidden');
+            selectEnshuuScreen.classList.add('hidden');
+            document.getElementById(screen).classList.remove('hidden');
+        }
+
+        // --- 問題の表示 ---
+        function displayQuestion() {
+            const problem = problems[state.currentProblemId];
+            state.currentQuestionIndex++;
+
+            if (state.currentQuestionIndex > problem.maxQuestions) {
+                showCompletion();
+                return;
+            }
+            
+            let context = {
+                problemId: state.currentProblemId,
+                questionIndex: state.currentQuestionIndex
+            };
+            
+            let problemGenerator;
+            const mixedProblemSets = ['jissen1', 'enshuu5', 'enshuu6', 'jissen2'];
+
+            if (mixedProblemSets.includes(state.currentProblemId)) {
+                const mixedQInfo = state.jissenQuestionList[state.currentQuestionIndex - 1];
+                problemGenerator = problems[mixedQInfo.originalId];
+                state.currentQuestionData = problemGenerator.generate({ problemId: mixedQInfo.originalId, questionIndex: state.currentQuestionIndex});
+            } else {
+                 problemGenerator = problem;
+                 state.currentQuestionData = problem.generate(context);
+            }
+            
+            problemTitle.textContent = problem.title;
+            problemCounter.textContent = `${state.currentQuestionIndex} / ${problem.maxQuestions} 問目`;
+
+            // 回答欄の表示切り替え
+            singleAnswerContainer.classList.add('hidden');
+            multiAnswerContainer.classList.add('hidden');
+            timeAnswerContainer.classList.add('hidden');
+
+            if (problemGenerator.isMultiAnswer) {
+                multiAnswerContainer.classList.remove('hidden');
+                multiAnswerContainer.innerHTML = '';
+                
+                problemText.innerHTML = state.currentQuestionData.text;
+                
+                state.currentQuestionData.subQuestions.forEach((sq, index) => {
+                    let inputsHtml = '';
+                    if (sq.units.length > 1) { // Dual input
+                         inputsHtml = `<div class="flex items-center gap-2">
+                                       ${sq.labels[0]} <input type="text" class="multi-answer-input w-20 p-2 border-2 border-gray-300 rounded-lg text-lg text-center" data-index="${index}" data-sub-index="0"> ${sq.units[0]}、
+                                       ${sq.labels[1]} <input type="text" class="multi-answer-input w-20 p-2 border-2 border-gray-300 rounded-lg text-lg text-center" data-index="${index}" data-sub-index="1"> ${sq.units[1]}
+                                     </div>`;
+                    } else { // Single input
+                        inputsHtml = `<div class="flex items-center">
+                                        <input type="text" class="multi-answer-input w-full md:w-1/2 p-2 border-2 border-gray-300 rounded-lg text-lg" data-index="${index}">
+                                        <span class="ml-2 text-lg">${sq.units[0]}</span>
+                                      </div>`;
+                    }
+
+                    const questionElement = document.createElement('div');
+                    questionElement.innerHTML = `<p class="mb-2">${sq.text}</p><div class="ml-4">${inputsHtml}</div>`;
+                    multiAnswerContainer.appendChild(questionElement);
+                });
+            } else if (problemGenerator.answerType === 'time') {
+                timeAnswerContainer.classList.remove('hidden');
+                problemText.innerHTML = state.currentQuestionData.text;
+                document.querySelectorAll('.ampm-btn').forEach(btn => btn.classList.remove('selected'));
+                document.getElementById('hour-input').value = '';
+                document.getElementById('minute-input').value = '';
+
+            } else {
+                singleAnswerContainer.classList.remove('hidden');
+                problemText.innerHTML = state.currentQuestionData.text;
+                answerInput.value = '';
+                answerInput.placeholder = "答えを入力 (例: 1, 2, 3)";
+            }
+
+            feedback.innerHTML = '';
+            checkBtn.classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+            retryBtn.classList.add('hidden');
+            backToSelectBtn.classList.add('hidden');
+            document.querySelectorAll('input, .ampm-btn').forEach(el => el.disabled = false);
+            
+            // 最初の入力欄にフォーカス
+            const firstInput = document.querySelector('#answer-input, .multi-answer-input, #hour-input');
+            if(firstInput) firstInput.focus();
+        }
+
+        // --- 問題セット開始 ---
+        function startProblemSet(id) {
+            state.currentProblemId = id;
+            state.currentQuestionIndex = 0;
+            
+            const mixedProblemSets = ['jissen1', 'enshuu5', 'enshuu6', 'jissen2'];
+            
+            if (id === 'enshuu3_1') {
+                state.divisorCountTargets = utils.shuffleArray([2, 3, 4, 6, 8]);
+            }
+            
+            if (mixedProblemSets.includes(id)) {
+                state.jissenQuestionList = [];
+                let pools;
+                if(id === 'jissen1') {
+                    pools = {
+                        baisuu: ['enshuu1_1', 'enshuu1_2', 'enshuu1_3'],
+                        koubaisuu: ['enshuu2_1', 'enshuu2_2', 'enshuu2_3'],
+                        yakusuu: ['enshuu3_1', 'enshuu3_2'],
+                        kouyakusuu: ['enshuu4_1', 'enshuu4_2', 'enshuu4_3']
+                    };
+                     for (const category in pools) {
+                        for (let i = 0; i < 5; i++) {
+                            const randomProblemId = pools[category][utils.getRandomInt(0, pools[category].length - 1)];
+                            state.jissenQuestionList.push({ originalId: randomProblemId });
+                        }
+                    }
+                } else if (id === 'enshuu5'){ 
+                    pools = ['enshuu5_1', 'enshuu5_2', 'enshuu5_3', 'enshuu5_4', 'enshuu5_5'];
+                    pools.forEach(problemId => {
+                         state.jissenQuestionList.push({ originalId: problemId });
+                    });
+                } else if (id === 'enshuu6') {
+                    pools = ['enshuu6_1', 'enshuu6_2', 'enshuu6_3'];
+                    // 2-2-1
+                    state.jissenQuestionList.push({ originalId: pools[0] });
+                    state.jissenQuestionList.push({ originalId: pools[0] });
+                    state.jissenQuestionList.push({ originalId: pools[1] });
+                    state.jissenQuestionList.push({ originalId: pools[1] });
+                    state.jissenQuestionList.push({ originalId: pools[2] });
+                } else { // jissen2
+                    const enshuu5Pool = ['enshuu5_1', 'enshuu5_2', 'enshuu5_3', 'enshuu5_4', 'enshuu5_5'];
+                    const enshuu6Pool = ['enshuu6_1', 'enshuu6_2', 'enshuu6_3'];
+                    for(let i=0; i<5; i++) {
+                        state.jissenQuestionList.push({ originalId: enshuu5Pool[i]});
+                        state.jissenQuestionList.push({ originalId: enshuu6Pool[i % 3]});
+                    }
+                }
+                state.jissenQuestionList = utils.shuffleArray(state.jissenQuestionList);
+            }
+            showScreen('problem-screen');
+            displayQuestion();
+        }
+        
+        // --- 演習問題選択画面表示 ---
+        function showEnshuuSelect(id) {
+            const set = enshuuSets[id];
+            selectEnshuuTitle.textContent = set.title;
+            selectEnshuuOptions.innerHTML = '';
+            set.options.forEach(optionId => {
+                const problem = problems[optionId];
+                const button = document.createElement('button');
+                button.textContent = problem.title;
+                button.dataset.id = optionId;
+                button.className = 'w-full text-lg px-6 py-3 rounded-lg shadow-md font-bold transition-transform duration-200 ease-in-out active:scale-95 text-center border-2 text-white bg-blue-500 hover:bg-blue-600 border-blue-700';
+                selectEnshuuOptions.appendChild(button);
+            });
+            showScreen('select-enshuu-screen');
+        }
+
+        // --- 正誤判定 ---
+        function checkAnswer() {
+            let problemToCheck;
+            let currentQData;
+            const mixedProblemSets = ['jissen1', 'enshuu5', 'enshuu6', 'jissen2'];
+
+            if (mixedProblemSets.includes(state.currentProblemId)) {
+                const mixedQ = state.jissenQuestionList[state.currentQuestionIndex - 1];
+                problemToCheck = problems[mixedQ.originalId];
+                currentQData = state.currentQuestionData;
+            } else {
+                problemToCheck = problems[state.currentProblemId];
+                currentQData = state.currentQuestionData;
+            }
+            
+            let isCorrect;
+            
+            if (problemToCheck.isMultiAnswer) {
+                const correctAnswers = problemToCheck.getAnswer(currentQData);
+                const inputElements = document.querySelectorAll('.multi-answer-input');
+                let allCorrect = true;
+                const feedbackParts = [];
+                const maxIndex = Math.max(...Array.from(inputElements).map(el => parseInt(el.dataset.index)));
+                const userAnswers = Array.from({length: maxIndex + 1}, () => []);
+
+                inputElements.forEach(input => {
+                    const index = parseInt(input.dataset.index);
+                    const value = input.value.trim().replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+                    userAnswers[index].push(value !== '' ? Number(value) : '');
+                });
+
+                correctAnswers.forEach((corrAnsArr, index) => {
+                    const userAnsArr = (corrAnsArr.length > 1) ? userAnswers[index].sort((a,b)=>a-b) : userAnswers[index];
+                    const sortedCorrAnsArr = (corrAnsArr.length > 1) ? corrAnsArr.sort((a,b)=>a-b) : corrAnsArr;
+                    const isSubCorrect = JSON.stringify(sortedCorrAnsArr) === JSON.stringify(userAnsArr);
+
+                    let partHtml = `<div>(${index + 1}) `;
+                    if (isSubCorrect) {
+                        partHtml += `<span class="feedback-correct">◯</span></div>`;
+                    } else {
+                        allCorrect = false;
+                        let correctAnswerText;
+                        if (corrAnsArr.length > 1) { 
+                             correctAnswerText = `${currentQData.subQuestions[index].labels[0]}<b>${corrAnsArr[0]}</b>${currentQData.subQuestions[index].units[0]}, ${currentQData.subQuestions[index].labels[1]}<b>${corrAnsArr[1]}</b>${currentQData.subQuestions[index].units[1]}`;
+                        } else {
+                             correctAnswerText = `<b>${corrAnsArr[0]}</b>${currentQData.subQuestions[index].units[0]}`;
+                        }
+                        partHtml += `<span class="feedback-incorrect">×</span> ${correctAnswerText}</div>`;
+                    }
+                    feedbackParts.push(partHtml);
+                });
+                
+                isCorrect = allCorrect;
+                if (allCorrect) {
+                     feedback.innerHTML = '<span class="feedback-correct">◯ 全問正解！</span>';
+                } else {
+                    feedback.innerHTML = '<div><span class="feedback-incorrect">× ちがうところがあります</span></div><div class="mt-2">正解は</div><div class="ml-4">' + feedbackParts.join('') + '</div>';
+                }
+
+            } else { // 単一回答欄の処理
+                const correctAnswer = problemToCheck.getAnswer(currentQData);
+
+                if (problemToCheck.answerType === 'time') {
+                    const [correctAmPm, correctHour, correctMinute] = correctAnswer;
+                    
+                    const selectedAmPmEl = document.querySelector('.ampm-btn.selected');
+                    const userAmPm = selectedAmPmEl ? selectedAmPmEl.dataset.value : null;
+                    const userHour = document.getElementById('hour-input').value.trim().replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+                    const userMinute = document.getElementById('minute-input').value.trim().replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+                    
+                    const paddedUserMinute = String(parseInt(userMinute) || 0).padStart(2, '0');
+
+                    isCorrect = (userAmPm === correctAmPm) && 
+                                (userHour === correctHour) && 
+                                (paddedUserMinute === correctMinute);
+
+                } else {
+                     const userAnswer = answerInput.value
+                        .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)) 
+                        .split(/[\s,，、　]+/) 
+                        .filter(s => s.trim() !== '')
+                        .map(Number)
+                        .sort((a,b)=>a-b);
+                    isCorrect = JSON.stringify(userAnswer) === JSON.stringify(correctAnswer.sort((a,b)=>a-b));
+                }
+                
+                if (isCorrect) {
+                    feedback.innerHTML = '<span class="feedback-correct">◯ 正解！</span>';
+                } else {
+                    let correctAnswerText;
+                    if (problemToCheck.answerType === 'time') {
+                        const [correctAmPm, correctHour, correctMinute] = correctAnswer;
+                        correctAnswerText = `${correctAmPm} ${correctHour}時${correctMinute}分`;
+                    } else {
+                        correctAnswerText = correctAnswer.join(', ');
+                    }
+                    feedback.innerHTML = `<span class="feedback-incorrect">× ちがうよ</span><br>正解は <b class="text-blue-600">${correctAnswerText}</b> です。`;
+                }
+            }
+
+            // --- 共通のボタン表示処理 ---
+            nextBtn.textContent = '次の問題へ';
+            if (state.currentProblemId.startsWith('reidai')) {
+                if (isCorrect) {
+                    nextBtn.textContent = '演習問題へ進む';
+                }
+            }
+            checkBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            document.querySelectorAll('input, .ampm-btn').forEach(el => el.disabled = true);
+            nextBtn.focus();
+        }
+
+        // --- 完了画面 ---
+        function showCompletion() {
+            problemTitle.textContent = "おつかれさま！";
+            problemCounter.textContent = `全 ${problems[state.currentProblemId].maxQuestions} 問が終わりました。`;
+            problemText.innerHTML = "よくがんばりました！メニューにもどって、他の問題にもちょうせんしてみよう！";
+            singleAnswerContainer.classList.add('hidden');
+            timeAnswerContainer.classList.add('hidden');
+            multiAnswerContainer.classList.add('hidden');
+            feedback.innerHTML = '';
+            checkBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            if (state.currentProblemId.startsWith('enshuu') || state.currentProblemId.startsWith('jissen')) {
+                retryBtn.classList.remove('hidden');
+            }
+            if (state.currentProblemId.startsWith('enshuu') && !['enshuu5', 'enshuu6'].includes(state.currentProblemId)) {
+                backToSelectBtn.classList.remove('hidden');
+            }
+        }
+
+        // --- イベントリスナー ---
+        homeScreen.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (button && !button.disabled) {
+                const id = button.dataset.id;
+                if (!id) return;
+
+                if (id.startsWith('reidai') || id.startsWith('jissen')) {
+                    startProblemSet(id);
+                } else if (id === 'enshuu5' || id === 'enshuu6') {
+                    startProblemSet(id);
+                } else if (id.startsWith('enshuu')) {
+                    showEnshuuSelect(id);
+                }
+            }
+        });
+
+        selectEnshuuOptions.addEventListener('click', (e) => {
+             const button = e.target.closest('button');
+             if (button && !button.disabled) {
+                const id = button.dataset.id;
+                if (id) startProblemSet(id);
+             }
+        });
+
+        checkBtn.addEventListener('click', checkAnswer);
+        
+        nextBtn.addEventListener('click', () => {
+            if (state.currentProblemId.startsWith('reidai')) {
+                const enshuuId = state.currentProblemId.replace('reidai', 'enshuu');
+                if(['enshuu5', 'enshuu6'].includes(enshuuId)) {
+                    startProblemSet(enshuuId);
+                } else {
+                    showEnshuuSelect(enshuuId);
+                }
+            } else {
+                displayQuestion();
+            }
+        });
+        
+        retryBtn.addEventListener('click', () => {
+            startProblemSet(state.currentProblemId);
+        });
+
+        backToSelectBtn.addEventListener('click', () => {
+            const enshuuId = state.currentProblemId.split('_')[0];
+            showEnshuuSelect(enshuuId);
+        });
+        
+        ampmButtonsContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('.ampm-btn');
+            if (button) {
+                document.querySelectorAll('.ampm-btn').forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+            }
+        });
+
+        problemScreen.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !checkBtn.classList.contains('hidden')) {
+                e.preventDefault();
+                
+                let problemToCheck;
+                const problem = problems[state.currentProblemId];
+                const mixedProblemSets = ['jissen1', 'enshuu5', 'enshuu6', 'jissen2'];
+                if (mixedProblemSets.includes(state.currentProblemId)) {
+                    const mixedQ = state.jissenQuestionList[state.currentQuestionIndex - 1];
+                    problemToCheck = problems[mixedQ.originalId];
+                } else {
+                    problemToCheck = problem;
+                }
+
+                if(problemToCheck && problemToCheck.isMultiAnswer) {
+                     if (!Array.from(document.querySelectorAll('.multi-answer-input')).some(el => el.value.trim() !== '')) {
+                        feedback.innerHTML = '<span class="feedback-incorrect">答えを正しく入力してください！</span>';
+                        return;
+                    }
+                } else if (problemToCheck && problemToCheck.answerType === 'time') {
+                     const hourInputVal = document.getElementById('hour-input').value.trim();
+                     const minuteInputVal = document.getElementById('minute-input').value.trim();
+                     const ampmSelected = document.querySelector('.ampm-btn.selected');
+                      if (!ampmSelected) {
+                        feedback.innerHTML = '<span class="feedback-incorrect">午前と午後のどちらかを選択してください！</span>';
+                        return;
+                    }
+                    if (hourInputVal === '' && minuteInputVal === '') {
+                        feedback.innerHTML = '<span class="feedback-incorrect">答えを正しく入力してください！</span>';
+                        return;
+                    }
+                } else {
+                     if (answerInput.value.trim() === '') {
+                        feedback.innerHTML = '<span class="feedback-incorrect">答えを正しく入力してください！</span>';
+                        return;
+                    }
+                }
+
+                checkAnswer();
+            }
+        });
+        
+        backToMenuBtn.addEventListener('click', () => showScreen('home-screen'));
+        backToHomeFromSelect.addEventListener('click', () => showScreen('home-screen'));
+
+    </script>
+</body>
+</html>
