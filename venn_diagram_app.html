@@ -200,7 +200,6 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 図を描画するには小さすぎる場合はここで処理を終了
             if (size < 20) {
                 return;
             }
@@ -246,70 +245,93 @@
             let c1x, c2x, currentRadius;
             const cy = centerY;
 
-            // A∩Bの値によって円の位置と大きさを動的に変更
-            if (values.a_and_b === 0) {
-                // 円が重ならない場合: はみ出さないように半径を少し小さくし、円同士の間隔を確保
-                currentRadius = radius * 0.9;
-                c1x = centerX - currentRadius * 1.1; // 円の中心を離す
-                c2x = centerX + currentRadius * 1.1;
-            } else {
-                // 円が重なる場合
+            const shouldDrawA = (values.a_only + values.a_and_b) > 0;
+            const shouldDrawB = (values.b_only + values.a_and_b) > 0;
+
+            if (shouldDrawA && !shouldDrawB) {
+                // Aのみ表示
                 currentRadius = radius;
-                c1x = centerX - radius / 2;
-                c2x = centerX + radius / 2;
+                c1x = centerX;
+            } else if (!shouldDrawA && shouldDrawB) {
+                // Bのみ表示
+                currentRadius = radius;
+                c2x = centerX;
+            } else if (shouldDrawA && shouldDrawB) {
+                // 両方表示
+                if (values.a_and_b === 0) {
+                    currentRadius = radius * 0.9;
+                    c1x = centerX - currentRadius * 1.1;
+                    c2x = centerX + currentRadius * 1.1;
+                } else {
+                    currentRadius = radius;
+                    c1x = centerX - radius / 2;
+                    c2x = centerX + radius / 2;
+                }
             }
 
-            // 円
-            ctx.globalAlpha = 0.2;
-            ctx.fillStyle = '#2563eb'; // blue-600
-            ctx.beginPath();
-            ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
-            ctx.fill();
-
-            ctx.fillStyle = '#dc2626'; // red-600
-            ctx.beginPath();
-            ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
-
-            // 枠線
-            ctx.strokeStyle = '#1d4ed8'; // blue-800
-            ctx.beginPath();
-            ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
-            ctx.stroke();
-
-            ctx.strokeStyle = '#991b1b'; // red-800
-            ctx.beginPath();
-            ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
-            ctx.stroke();
+            // Aの円を描画
+            if (shouldDrawA) {
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#2563eb';
+                ctx.beginPath();
+                ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = '#1d4ed8';
+                ctx.beginPath();
+                ctx.arc(c1x, cy, currentRadius, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
             
+            // Bの円を描画
+            if (shouldDrawB) {
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = '#991b1b';
+                ctx.beginPath();
+                ctx.arc(c2x, cy, currentRadius, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+
             // テキスト設定
             const textFontSize = Math.max(10, Math.min(radius * 0.25, 24));
             ctx.fillStyle = '#000';
-            ctx.font = `500 ${textFontSize}px 'Inter', sans-serif`; 
+            ctx.font = `500 ${textFontSize}px 'Inter', sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
             // 数値
-            if (values.a_and_b === 0) {
+            if (shouldDrawA && !shouldDrawB) {
                 ctx.fillText(values.a_only, c1x, cy);
+            } else if (!shouldDrawA && shouldDrawB) {
                 ctx.fillText(values.b_only, c2x, cy);
-            } else {
-                ctx.fillText(values.a_only, c1x - radius / 2, cy);
-                ctx.fillText(values.b_only, c2x + radius / 2, cy);
-                ctx.fillText(values.a_and_b, centerX, cy);
+            } else if (shouldDrawA && shouldDrawB) {
+                if (values.a_and_b === 0) {
+                    ctx.fillText(values.a_only, c1x, cy);
+                    ctx.fillText(values.b_only, c2x, cy);
+                } else {
+                    ctx.fillText(values.a_only, c1x - radius / 2, cy);
+                    ctx.fillText(values.b_only, c2x + radius / 2, cy);
+                    ctx.fillText(values.a_and_b, centerX, cy);
+                }
             }
+            
             ctx.fillText(values.outside, centerX, centerY - radius * 1.5);
-            
+
             // ラベル
-            ctx.fillStyle = '#1d4ed8';
             ctx.font = `${labelFontSize}px 'Inter', sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('A', c1x - currentRadius * 0.85, cy - currentRadius * 0.85);
-            
-            ctx.fillStyle = '#991b1b';
-            ctx.fillText('B', c2x + currentRadius * 0.85, cy - currentRadius * 0.85);
+            if (shouldDrawA) {
+                ctx.fillStyle = '#1d4ed8';
+                ctx.fillText('A', c1x - currentRadius * 0.85, cy - currentRadius * 0.85);
+            }
+            if (shouldDrawB) {
+                ctx.fillStyle = '#991b1b';
+                ctx.fillText('B', c2x + currentRadius * 0.85, cy - currentRadius * 0.85);
+            }
         }
 
         function drawThreeSetVenn(values, centerX, centerY, radius, labelFontSize, uLabelX, uLabelY) {
