@@ -34,7 +34,7 @@
 
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:items-start">
             <!-- コントロールパネル -->
-            <div id="control-panel" class="lg:col-span-1 space-y-6 control-panel">
+            <div id="control-panel" class="lg-col-span-1 space-y-6 control-panel">
                 <div>
                     <div class="flex items-center justify-center space-x-2 mb-4">
                         <button id="two-sets-btn" class="flex-1 py-2 px-4 rounded-lg font-semibold transition bg-blue-500 text-white shadow-md hover:bg-blue-600">2つの集合</button>
@@ -177,7 +177,6 @@
          * @param {object} values - getValues()で取得した数値オブジェクト
          */
         function calculateResults(values) {
-            // HTMLにあらかじめ用意された要素を取得し、中の数値だけを更新する
             const resA = document.querySelector('#result-A span:last-child');
             const resB = document.querySelector('#result-B span:last-child');
             const resC = document.querySelector('#result-C span:last-child');
@@ -197,8 +196,8 @@
                 resUnionLabel.innerHTML = 'AまたはB (A&cup;B)';
                 resUnionVal.textContent = a_or_b;
                 resU.textContent = u;
-                // 2つの集合モードではCの行を非表示にする
-                resCRow.classList.add('hidden');
+                // Cの行を非表示にする(レイアウトを崩さないようにvisibilityを使用)
+                resCRow.style.visibility = 'hidden';
             } else {
                 const a = values.a_only + values.a_b_only + values.a_c_only + values.a_b_c;
                 const b = values.b_only + values.a_b_only + values.b_c_only + values.a_b_c;
@@ -212,8 +211,8 @@
                 resUnionLabel.innerHTML = 'AまたはBまたはC (A&cup;B&cup;C)';
                 resUnionVal.textContent = a_or_b_or_c;
                 resU.textContent = u;
-                // 3つの集合モードではCの行を表示する
-                resCRow.classList.remove('hidden');
+                // Cの行を表示する
+                resCRow.style.visibility = 'visible';
             }
         }
 
@@ -494,81 +493,205 @@
          */
         function drawThreeSetVenn(values, centerX, centerY, radius, labelFontSize, uLabelX, uLabelY) {
             const r = radius * 0.9;
-            const offset = r * 0.5;
-            
-            const c1x = centerX;
-            const c1y = centerY - offset;
-            const c2x = centerX - offset * Math.sqrt(3) / 2 - offset/2;
-            const c2y = centerY + offset * 0.9; 
-            const c3x = centerX + offset * Math.sqrt(3) / 2 + offset/2;
-            const c3y = centerY + offset * 0.9; 
-            
-            // 円の塗りつぶし
-            ctx.globalAlpha = 0.2;
-            ctx.fillStyle = '#2563eb';
-            ctx.beginPath();
-            ctx.arc(c1x, c1y, r, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#dc2626';
-            ctx.beginPath();
-            ctx.arc(c2x, c2y, r, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#f59e0b';
-            ctx.beginPath();
-            ctx.arc(c3x, c3y, r, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
-            
-            // 円の枠線
-            ctx.strokeStyle = '#1d4ed8';
-            ctx.beginPath();
-            ctx.arc(c1x, c1y, r, 0, Math.PI * 2);
-            ctx.stroke();
-            
-            ctx.strokeStyle = '#991b1b';
-            ctx.beginPath();
-            ctx.arc(c2x, c2y, r, 0, Math.PI * 2);
-            ctx.stroke();
-            
-            ctx.strokeStyle = '#b45309';
-            ctx.beginPath();
-            ctx.arc(c3x, c3y, r, 0, Math.PI * 2);
-            ctx.stroke();
-
             const textFontSize = Math.max(12, Math.min(r * 0.25, 24));
+            const labelFontSize3 = labelFontSize * 0.9;
+
+            // --- 集合が内包される条件を判定 ---
+            const isAContained = values.a_only === 0 && (values.a_b_only > 0 || values.a_c_only > 0 || values.a_b_c > 0);
+            const isBContained = values.b_only === 0 && (values.a_b_only > 0 || values.b_c_only > 0 || values.a_b_c > 0);
+            const isCContained = values.c_only === 0 && (values.a_c_only > 0 || values.b_c_only > 0 || values.a_b_c > 0);
+            
+            // --- 描画ロジック：包含関係がある場合は特別な描画を行う ---
+            if (isAContained) {
+                // A ⊂ (B ∪ C) の場合の描画ロジック
+                // 外側の2つの円(B, C)を大きくし、少し離して配置
+                const r_bc = radius * 1.1;
+                const separation = r_bc / 1.8;
+                const c_b_x = centerX - separation;
+                const c_c_x = centerX + separation;
+                const c_bc_y = centerY + r_bc * 0.2;
+                // BとCの交点のY座標を幾何学的に計算
+                const intersect_y = c_bc_y - Math.sqrt(Math.max(0, r_bc**2 - separation**2));
+
+                // 内包される集合Aを楕円として定義
+                const ellipseA = { rx: r * 1.3, ry: r * 0.5 };
+                ellipseA.x = centerX;
+                // 楕円の上端が、BとCの交点に接するようにY座標を決定
+                ellipseA.y = intersect_y + ellipseA.ry;
+                
+                // 描画処理
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.arc(c_b_x, c_bc_y, r_bc, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(c_c_x, c_bc_y, r_bc, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.ellipse(ellipseA.x, ellipseA.y, ellipseA.rx, ellipseA.ry, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+
+                ctx.strokeStyle = '#991b1b'; ctx.beginPath(); ctx.arc(c_b_x, c_bc_y, r_bc, 0, Math.PI * 2); ctx.stroke();
+                ctx.strokeStyle = '#b45309'; ctx.beginPath(); ctx.arc(c_c_x, c_bc_y, r_bc, 0, Math.PI * 2); ctx.stroke();
+                ctx.strokeStyle = '#1d4ed8'; ctx.beginPath(); ctx.ellipse(ellipseA.x, ellipseA.y, ellipseA.rx, ellipseA.ry, 0, 0, Math.PI * 2); ctx.stroke();
+                
+                ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#000';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(values.b_only, c_b_x - r_bc / 2, c_bc_y);
+                ctx.fillText(values.c_only, c_c_x + r_bc / 2, c_bc_y);
+                ctx.fillText(values.b_c_only, centerX, c_bc_y + r_bc / 2.5);
+                ctx.fillText(values.a_b_only, ellipseA.x - ellipseA.rx * 0.65, ellipseA.y);
+                ctx.fillText(values.a_c_only, ellipseA.x + ellipseA.rx * 0.65, ellipseA.y);
+                ctx.fillText(values.a_b_c, ellipseA.x, ellipseA.y);
+
+                ctx.font = `${labelFontSize3}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#991b1b'; ctx.fillText('B', c_b_x - r_bc * 0.85, c_bc_y - r_bc * 0.85);
+                ctx.fillStyle = '#b45309'; ctx.fillText('C', c_c_x + r_bc * 0.85, c_bc_y - r_bc * 0.85);
+                ctx.fillStyle = '#1d4ed8'; 
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('A', ellipseA.x, intersect_y);
+
+            } else if (isBContained) {
+                // B ⊂ (A ∪ C) の場合の描画ロジック
+                const r_ac = radius * 1.05;
+                const c_a_x = centerX - r_ac*0.45;
+                const c_a_y = centerY - r_ac*0.45;
+                const c_c_x = centerX + r_ac*0.45;
+                const c_c_y = centerY + r_ac*0.45;
+
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.arc(c_a_x, c_a_y, r_ac, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(c_c_x, c_c_y, r_ac, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = '#1d4ed8'; ctx.beginPath(); ctx.arc(c_a_x, c_a_y, r_ac, 0, Math.PI * 2); ctx.stroke();
+                ctx.strokeStyle = '#b45309'; ctx.beginPath(); ctx.arc(c_c_x, c_c_y, r_ac, 0, Math.PI * 2); ctx.stroke();
+                
+                // 楕円Bを計算して描画
+                const angle = Math.PI / 4;
+                const ellipseB = { x: centerX - r*0.25, y: centerY + r*0.25, rx: r*1.2, ry: r*0.5 };
+                ctx.save();
+                ctx.translate(ellipseB.x, ellipseB.y);
+                ctx.rotate(angle);
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.ellipse(0, 0, ellipseB.rx, ellipseB.ry, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = '#991b1b'; ctx.beginPath(); ctx.ellipse(0, 0, ellipseB.rx, ellipseB.ry, 0, 0, Math.PI * 2); ctx.stroke();
+                ctx.restore();
+
+                // 数値
+                ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#000';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(values.a_only, c_a_x - r_ac/2.5, c_a_y - r_ac/2.5);
+                ctx.fillText(values.c_only, c_c_x + r_ac/2.5, c_c_y + r_ac/2.5);
+                ctx.fillText(values.a_c_only, centerX + r_ac / 2.5, centerY - r_ac / 2.5);
+                ctx.fillText(values.a_b_only, ellipseB.x - r*0.5, ellipseB.y - r*0.5);
+                ctx.fillText(values.b_c_only, ellipseB.x + r*0.5, ellipseB.y + r*0.5);
+                ctx.fillText(values.a_b_c, ellipseB.x, ellipseB.y);
+                
+                // ラベル
+                ctx.font = `${labelFontSize3}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#1d4ed8'; 
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('A', c_a_x, c_a_y - r_ac);
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#b45309'; ctx.fillText('C', c_c_x + r_ac * 0.85, c_c_y + r_ac * 0.85);
+                ctx.fillStyle = '#991b1b'; ctx.fillText('B', ellipseB.x - r*0.6, ellipseB.y + r*0.6);
+
+            } else if (isCContained) {
+                // C ⊂ (A ∪ B) の場合の描画ロジック
+                 const r_ab = radius * 1.05;
+                 const c_a_x = centerX + r_ab*0.45;
+                 const c_a_y = centerY - r_ab*0.45;
+                 const c_b_x = centerX - r_ab*0.45;
+                 const c_b_y = centerY + r_ab*0.45;
+ 
+                 ctx.globalAlpha = 0.2;
+                 ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.arc(c_a_x, c_a_y, r_ab, 0, Math.PI * 2); ctx.fill();
+                 ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.arc(c_b_x, c_b_y, r_ab, 0, Math.PI * 2); ctx.fill();
+                 ctx.globalAlpha = 1.0;
+                 ctx.strokeStyle = '#1d4ed8'; ctx.beginPath(); ctx.arc(c_a_x, c_a_y, r_ab, 0, Math.PI * 2); ctx.stroke();
+                 ctx.strokeStyle = '#991b1b'; ctx.beginPath(); ctx.arc(c_b_x, c_b_y, r_ab, 0, Math.PI * 2); ctx.stroke();
+                 
+                 // 楕円Cを計算して描画
+                 const angle = -Math.PI / 4;
+                 const ellipseC = { x: centerX + r*0.25, y: centerY + r*0.25, rx: r*1.2, ry: r*0.5 };
+                 ctx.save();
+                 ctx.translate(ellipseC.x, ellipseC.y);
+                 ctx.rotate(angle);
+                 ctx.globalAlpha = 0.2;
+                 ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.ellipse(0, 0, ellipseC.rx, ellipseC.ry, 0, 0, Math.PI * 2); ctx.fill();
+                 ctx.globalAlpha = 1.0;
+                 ctx.strokeStyle = '#b45309'; ctx.beginPath(); ctx.ellipse(0, 0, ellipseC.rx, ellipseC.ry, 0, 0, Math.PI * 2); ctx.stroke();
+                 ctx.restore();
+ 
+                // 数値
+                ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#000';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(values.a_only, c_a_x + r_ab / 2.5, c_a_y - r_ab / 2.5);
+                ctx.fillText(values.b_only, c_b_x - r_ab/2.5, c_b_y + r_ab/2.5);
+                ctx.fillText(values.a_b_only, centerX - r_ab / 2.5, centerY - r_ab / 2.5);
+                ctx.fillText(values.a_c_only, ellipseC.x + r*0.5, ellipseC.y - r*0.5);
+                ctx.fillText(values.b_c_only, ellipseC.x - r*0.5, ellipseC.y + r*0.5);
+                ctx.fillText(values.a_b_c, ellipseC.x, ellipseC.y);
+                
+                // ラベル
+                ctx.font = `${labelFontSize3}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#1d4ed8';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('A', c_a_x, c_a_y - r_ab);
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#991b1b'; ctx.fillText('B', c_b_x - r_ab * 0.85, c_b_y + r_ab * 0.85);
+                ctx.fillStyle = '#b45309'; ctx.fillText('C', ellipseC.x + r*0.6, ellipseC.y + r*0.6);
+
+            } else { // 通常の描画
+                const offset = r * 0.5;
+                const c1x = centerX;
+                const c1y = centerY - offset;
+                const c2x = centerX - offset * Math.sqrt(3) / 2 - offset/2;
+                const c2y = centerY + offset * 0.9; 
+                const c3x = centerX + offset * Math.sqrt(3) / 2 + offset/2;
+                const c3y = centerY + offset * 0.9; 
+
+                ctx.globalAlpha = 0.2;
+                ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.arc(c1x, c1y, r, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.arc(c2x, c2y, r, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(c3x, c3y, r, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1.0;
+                
+                ctx.strokeStyle = '#1d4ed8'; ctx.beginPath(); ctx.arc(c1x, c1y, r, 0, Math.PI * 2); ctx.stroke();
+                ctx.strokeStyle = '#991b1b'; ctx.beginPath(); ctx.arc(c2x, c2y, r, 0, Math.PI * 2); ctx.stroke();
+                ctx.strokeStyle = '#b45309'; ctx.beginPath(); ctx.arc(c3x, c3y, r, 0, Math.PI * 2); ctx.stroke();
+
+                ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
+                ctx.fillStyle = '#000';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                ctx.fillText(values.a_only, c1x, c1y - r/2);
+                ctx.fillText(values.b_only, c2x - r/2, c2y + r/2);
+                ctx.fillText(values.c_only, c3x + r/2, c3y + r/2);
+                ctx.fillText(values.a_b_only, centerX - r*0.55, centerY - r*0.1);
+                ctx.fillText(values.a_c_only, centerX + r*0.55, centerY - r*0.1);
+                ctx.fillText(values.b_c_only, centerX, centerY + r*0.8);
+                ctx.fillText(values.a_b_c, centerX, centerY + r*0.3);
+                
+                ctx.font = `${labelFontSize3}px ${FONT_FAMILY}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+    
+                ctx.fillStyle = '#1d4ed8'; ctx.fillText('A', c1x, c1y - r * 1.2);
+                ctx.fillStyle = '#991b1b'; ctx.fillText('B', c2x - r * 1.15, c2y - r * 0.3);
+                ctx.fillStyle = '#b45309'; ctx.fillText('C', c3x + r * 1.15, c3y - r * 0.3);
+            }
+
+            // どの集合にも属さない数値をUの右下に配置 (全ケース共通)
             ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
             ctx.fillStyle = '#000';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            // 各領域に数値を配置
-            ctx.fillText(values.a_only, c1x, c1y - r/2);
-            ctx.fillText(values.b_only, c2x - r/2, c2y + r/2);
-            ctx.fillText(values.c_only, c3x + r/2, c3y + r/2);
-            ctx.fillText(values.a_b_only, centerX - r*0.55, centerY - r*0.1);
-            ctx.fillText(values.a_c_only, centerX + r*0.55, centerY - r*0.1);
-            ctx.fillText(values.b_c_only, centerX, centerY + r*0.8);
-            ctx.fillText(values.a_b_c, centerX, centerY + r*0.3);
-            
-            // どの集合にも属さない数値をUの右下に配置
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.fillText(values.outside, uLabelX + labelFontSize * 1.6, uLabelY + labelFontSize * 1.2);
-            
-            // ラベル
-            const labelFontSize3 = labelFontSize * 0.9;
-            ctx.font = `${labelFontSize3}px ${FONT_FAMILY}`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            ctx.fillStyle = '#1d4ed8';
-            ctx.fillText('A', c1x, c1y - r * 1.2);
-            ctx.fillStyle = '#991b1b';
-            ctx.fillText('B', c2x - r * 1.15, c2y - r * 0.3);
-            ctx.fillStyle = '#b45309';
-            ctx.fillText('C', c3x + r * 1.15, c3y - r * 0.3);
         }
 
         /**
