@@ -106,6 +106,12 @@
                     <div id="result-A" class="flex justify-between"><span>A</span><span class="font-semibold"></span></div>
                     <div id="result-B" class="flex justify-between"><span>B</span><span class="font-semibold"></span></div>
                     <div id="result-C" class="flex justify-between"><span>C</span><span class="font-semibold"></span></div>
+                    <div id="result-A-union-B" class="flex justify-between"><span>AまたはB (A∪B)</span><span class="font-semibold"></span></div>
+                    <div id="result-B-union-C" class="flex justify-between"><span>BまたはC (B∪C)</span><span class="font-semibold"></span></div>
+                    <div id="result-A-union-C" class="flex justify-between"><span>AまたはC (A∪C)</span><span class="font-semibold"></span></div>
+                    <div id="result-A-intersect-B" class="flex justify-between"><span>AかつB (A∩B)</span><span class="font-semibold"></span></div>
+                    <div id="result-B-intersect-C" class="flex justify-between"><span>BかつC (B∩C)</span><span class="font-semibold"></span></div>
+                    <div id="result-A-intersect-C" class="flex justify-between"><span>AかつC (A∩C)</span><span class="font-semibold"></span></div>
                     <div id="result-union" class="flex justify-between"><span></span><span class="font-semibold"></span></div>
                     <div id="result-U" class="flex justify-between"><span>全体 (U)</span><span class="font-semibold"></span></div>
                 </div>
@@ -184,6 +190,20 @@
             const resUnionVal = document.querySelector('#result-union span:last-child');
             const resU = document.querySelector('#result-U span:last-child');
             const resCRow = document.getElementById('result-C');
+            
+            const resAUnionBRow = document.getElementById('result-A-union-B');
+            const resBUnionCRow = document.getElementById('result-B-union-C');
+            const resAUnionCRow = document.getElementById('result-A-union-C');
+            const resAIntersectBRow = document.getElementById('result-A-intersect-B');
+            const resBIntersectCRow = document.getElementById('result-B-intersect-C');
+            const resAIntersectCRow = document.getElementById('result-A-intersect-C');
+
+            const resAUnionB = document.querySelector('#result-A-union-B span:last-child');
+            const resBUnionC = document.querySelector('#result-B-union-C span:last-child');
+            const resAUnionC = document.querySelector('#result-A-union-C span:last-child');
+            const resAIntersectB = document.querySelector('#result-A-intersect-B span:last-child');
+            const resBIntersectC = document.querySelector('#result-B-intersect-C span:last-child');
+            const resAIntersectC = document.querySelector('#result-A-intersect-C span:last-child');
 
             if (mode === 'two') {
                 const a = values.a_only + values.a_and_b;
@@ -196,8 +216,15 @@
                 resUnionLabel.innerHTML = 'AまたはB (A&cup;B)';
                 resUnionVal.textContent = a_or_b;
                 resU.textContent = u;
-                // Cの行を非表示にする(レイアウトを崩さないようにvisibilityを使用)
+                
                 resCRow.style.visibility = 'hidden';
+                resAUnionBRow.style.visibility = 'hidden';
+                resBUnionCRow.style.visibility = 'hidden';
+                resAUnionCRow.style.visibility = 'hidden';
+                resAIntersectBRow.style.visibility = 'hidden';
+                resBIntersectCRow.style.visibility = 'hidden';
+                resAIntersectCRow.style.visibility = 'hidden';
+
             } else {
                 const a = values.a_only + values.a_b_only + values.a_c_only + values.a_b_c;
                 const b = values.b_only + values.a_b_only + values.b_c_only + values.a_b_c;
@@ -211,8 +238,29 @@
                 resUnionLabel.innerHTML = 'AまたはBまたはC (A&cup;B&cup;C)';
                 resUnionVal.textContent = a_or_b_or_c;
                 resU.textContent = u;
-                // Cの行を表示する
+
                 resCRow.style.visibility = 'visible';
+                resAUnionBRow.style.visibility = 'visible';
+                resBUnionCRow.style.visibility = 'visible';
+                resAUnionCRow.style.visibility = 'visible';
+                resAIntersectBRow.style.visibility = 'visible';
+                resBIntersectCRow.style.visibility = 'visible';
+                resAIntersectCRow.style.visibility = 'visible';
+
+                const a_intersect_b = values.a_b_only + values.a_b_c;
+                const b_intersect_c = values.b_c_only + values.a_b_c;
+                const a_intersect_c = values.a_c_only + values.a_b_c;
+
+                const a_union_b = a + b - a_intersect_b;
+                const b_union_c = b + c - b_intersect_c;
+                const a_union_c = a + c - a_intersect_c;
+
+                resAUnionB.textContent = a_union_b;
+                resBUnionC.textContent = b_union_c;
+                resAUnionC.textContent = a_union_c;
+                resAIntersectB.textContent = a_intersect_b;
+                resBIntersectC.textContent = b_intersect_c;
+                resAIntersectC.textContent = a_intersect_c;
             }
         }
 
