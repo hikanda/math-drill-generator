@@ -519,17 +519,19 @@
                 // 楕円の上端が、BとCの交点に接するようにY座標を決定
                 ellipseA.y = intersect_y + ellipseA.ry;
                 
-                // 描画処理
+                // --- 図形の塗りつぶし ---
                 ctx.globalAlpha = 0.2;
                 ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.arc(c_b_x, c_bc_y, r_bc, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(c_c_x, c_bc_y, r_bc, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.ellipse(ellipseA.x, ellipseA.y, ellipseA.rx, ellipseA.ry, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.globalAlpha = 1.0;
 
+                // --- 図形の枠線 ---
                 ctx.strokeStyle = '#991b1b'; ctx.beginPath(); ctx.arc(c_b_x, c_bc_y, r_bc, 0, Math.PI * 2); ctx.stroke();
                 ctx.strokeStyle = '#b45309'; ctx.beginPath(); ctx.arc(c_c_x, c_bc_y, r_bc, 0, Math.PI * 2); ctx.stroke();
                 ctx.strokeStyle = '#1d4ed8'; ctx.beginPath(); ctx.ellipse(ellipseA.x, ellipseA.y, ellipseA.rx, ellipseA.ry, 0, 0, Math.PI * 2); ctx.stroke();
                 
+                // --- 数値の描画 ---
                 ctx.font = `500 ${textFontSize}px ${FONT_FAMILY}`;
                 ctx.fillStyle = '#000';
                 ctx.textAlign = 'center';
@@ -541,6 +543,7 @@
                 ctx.fillText(values.a_c_only, ellipseA.x + ellipseA.rx * 0.65, ellipseA.y);
                 ctx.fillText(values.a_b_c, ellipseA.x, ellipseA.y);
 
+                // --- ラベルの描画 ---
                 ctx.font = `${labelFontSize3}px ${FONT_FAMILY}`;
                 ctx.fillStyle = '#991b1b'; ctx.fillText('B', c_b_x - r_bc * 0.85, c_bc_y - r_bc * 0.85);
                 ctx.fillStyle = '#b45309'; ctx.fillText('C', c_c_x + r_bc * 0.85, c_bc_y - r_bc * 0.85);
