@@ -217,13 +217,15 @@
                 resUnionVal.textContent = a_or_b;
                 resU.textContent = u;
                 
-                resCRow.style.visibility = 'hidden';
-                resAUnionBRow.style.visibility = 'hidden';
-                resBUnionCRow.style.visibility = 'hidden';
-                resAUnionCRow.style.visibility = 'hidden';
-                resAIntersectBRow.style.visibility = 'hidden';
-                resBIntersectCRow.style.visibility = 'hidden';
-                resAIntersectCRow.style.visibility = 'hidden';
+                resCRow.classList.add('hidden');
+                resAUnionBRow.classList.add('hidden');
+                resBUnionCRow.classList.add('hidden');
+                resAUnionCRow.classList.add('hidden');
+                resAIntersectBRow.classList.add('hidden');
+                resBIntersectCRow.classList.add('hidden');
+                resAIntersectCRow.classList.add('hidden');
+                document.getElementById('result-union').classList.remove('hidden');
+
 
             } else {
                 const a = values.a_only + values.a_b_only + values.a_c_only + values.a_b_c;
@@ -239,13 +241,15 @@
                 resUnionVal.textContent = a_or_b_or_c;
                 resU.textContent = u;
 
-                resCRow.style.visibility = 'visible';
-                resAUnionBRow.style.visibility = 'visible';
-                resBUnionCRow.style.visibility = 'visible';
-                resAUnionCRow.style.visibility = 'visible';
-                resAIntersectBRow.style.visibility = 'visible';
-                resBIntersectCRow.style.visibility = 'visible';
-                resAIntersectCRow.style.visibility = 'visible';
+                resCRow.classList.remove('hidden');
+                resAUnionBRow.classList.remove('hidden');
+                resBUnionCRow.classList.remove('hidden');
+                resAUnionCRow.classList.remove('hidden');
+                resAIntersectBRow.classList.remove('hidden');
+                resBIntersectCRow.classList.remove('hidden');
+                resAIntersectCRow.classList.remove('hidden');
+                document.getElementById('result-union').classList.remove('hidden');
+
 
                 const a_intersect_b = values.a_b_only + values.a_b_c;
                 const b_intersect_c = values.b_c_only + values.a_b_c;
