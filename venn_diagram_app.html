@@ -22,6 +22,10 @@
             transform: scale(1.05);
             box-shadow: 0 0 10px rgba(66, 153, 225, 0.5);
         }
+        /* 計算結果の数値を等幅フォントで表示するためのクラス */
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
@@ -99,21 +103,19 @@
                 </div>
 
                 <!-- 計算結果 -->
-                <!-- パネルの高さを固定化し、初回描画と入力後のレイアウトずれを防ぐための工夫 -->
                 <div id="results-panel" class="pt-6 border-t border-gray-200 space-y-2 text-sm text-gray-700">
                     <h3 class="font-bold text-lg mb-2 text-gray-800">計算結果</h3>
-                    <!-- 以下の各行はJSで数値を更新するだけの静的な構造 -->
-                    <div id="result-A" class="flex justify-between"><span>A</span><span class="font-semibold"></span></div>
-                    <div id="result-B" class="flex justify-between"><span>B</span><span class="font-semibold"></span></div>
-                    <div id="result-C" class="flex justify-between"><span>C</span><span class="font-semibold"></span></div>
-                    <div id="result-A-union-B" class="flex justify-between"><span>AまたはB (A∪B)</span><span class="font-semibold"></span></div>
-                    <div id="result-B-union-C" class="flex justify-between"><span>BまたはC (B∪C)</span><span class="font-semibold"></span></div>
-                    <div id="result-A-union-C" class="flex justify-between"><span>AまたはC (A∪C)</span><span class="font-semibold"></span></div>
-                    <div id="result-A-intersect-B" class="flex justify-between"><span>AかつB (A∩B)</span><span class="font-semibold"></span></div>
-                    <div id="result-B-intersect-C" class="flex justify-between"><span>BかつC (B∩C)</span><span class="font-semibold"></span></div>
-                    <div id="result-A-intersect-C" class="flex justify-between"><span>AかつC (A∩C)</span><span class="font-semibold"></span></div>
-                    <div id="result-union" class="flex justify-between"><span></span><span class="font-semibold"></span></div>
-                    <div id="result-U" class="flex justify-between"><span>全体 (U)</span><span class="font-semibold"></span></div>
+                    <div id="result-A" class="flex justify-between items-center"><span>A</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-B" class="flex justify-between items-center"><span>B</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-C" class="flex justify-between items-center"><span>C</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-A-union-B" class="flex justify-between items-center"><span>AまたはB (A∪B)</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-B-union-C" class="flex justify-between items-center"><span>BまたはC (B∪C)</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-A-union-C" class="flex justify-between items-center"><span>AまたはC (A∪C)</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-A-intersect-B" class="flex justify-between items-center"><span>AかつB (A∩B)</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-B-intersect-C" class="flex justify-between items-center"><span>BかつC (B∩C)</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-A-intersect-C" class="flex justify-between items-center"><span>AかつC (A∩C)</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-union" class="flex justify-between items-center"><span>AまたはBまたはC (A∪B∪C)</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
+                    <div id="result-U" class="flex justify-between items-center"><span>全体 (U)</span><span class="font-semibold w-16 text-right tabular-nums"></span></div>
                 </div>
             </div>
 
@@ -183,27 +185,33 @@
          * @param {object} values - getValues()で取得した数値オブジェクト
          */
         function calculateResults(values) {
-            const resA = document.querySelector('#result-A span:last-child');
-            const resB = document.querySelector('#result-B span:last-child');
-            const resC = document.querySelector('#result-C span:last-child');
-            const resUnionLabel = document.querySelector('#result-union span:first-child');
-            const resUnionVal = document.querySelector('#result-union span:last-child');
-            const resU = document.querySelector('#result-U span:last-child');
-            const resCRow = document.getElementById('result-C');
-            
-            const resAUnionBRow = document.getElementById('result-A-union-B');
-            const resBUnionCRow = document.getElementById('result-B-union-C');
-            const resAUnionCRow = document.getElementById('result-A-union-C');
-            const resAIntersectBRow = document.getElementById('result-A-intersect-B');
-            const resBIntersectCRow = document.getElementById('result-B-intersect-C');
-            const resAIntersectCRow = document.getElementById('result-A-intersect-C');
+            const resultRows = {
+                C: document.getElementById('result-C'),
+                A_union_B: document.getElementById('result-A-union-B'),
+                B_union_C: document.getElementById('result-B-union-C'),
+                A_union_C: document.getElementById('result-A-union-C'),
+                A_intersect_B: document.getElementById('result-A-intersect-B'),
+                B_intersect_C: document.getElementById('result-B-intersect-C'),
+                A_intersect_C: document.getElementById('result-A-intersect-C'),
+                union: document.getElementById('result-union'),
+            };
 
-            const resAUnionB = document.querySelector('#result-A-union-B span:last-child');
-            const resBUnionC = document.querySelector('#result-B-union-C span:last-child');
-            const resAUnionC = document.querySelector('#result-A-union-C span:last-child');
-            const resAIntersectB = document.querySelector('#result-A-intersect-B span:last-child');
-            const resBIntersectC = document.querySelector('#result-B-intersect-C span:last-child');
-            const resAIntersectC = document.querySelector('#result-A-intersect-C span:last-child');
+            const resultSpans = {
+                A: document.querySelector('#result-A span:last-child'),
+                B: document.querySelector('#result-B span:last-child'),
+                C: resultRows.C.querySelector('span:last-child'),
+                A_union_B: resultRows.A_union_B.querySelector('span:last-child'),
+                B_union_C: resultRows.B_union_C.querySelector('span:last-child'),
+                A_union_C: resultRows.A_union_C.querySelector('span:last-child'),
+                A_intersect_B: resultRows.A_intersect_B.querySelector('span:last-child'),
+                B_intersect_C: resultRows.B_intersect_C.querySelector('span:last-child'),
+                A_intersect_C: resultRows.A_intersect_C.querySelector('span:last-child'),
+                union_label: resultRows.union.querySelector('span:first-child'),
+                union_val: resultRows.union.querySelector('span:last-child'),
+                U: document.querySelector('#result-U span:last-child')
+            };
+
+            Object.values(resultRows).forEach(row => row.classList.remove('hidden'));
 
             if (mode === 'two') {
                 const a = values.a_only + values.a_and_b;
@@ -211,20 +219,19 @@
                 const a_or_b = values.a_only + values.b_only + values.a_and_b;
                 const u = a_or_b + values.outside;
                 
-                resA.textContent = a;
-                resB.textContent = b;
-                resUnionLabel.innerHTML = 'AまたはB (A&cup;B)';
-                resUnionVal.textContent = a_or_b;
-                resU.textContent = u;
-                
-                resCRow.classList.add('hidden');
-                resAUnionBRow.classList.add('hidden');
-                resBUnionCRow.classList.add('hidden');
-                resAUnionCRow.classList.add('hidden');
-                resAIntersectBRow.classList.add('hidden');
-                resBIntersectCRow.classList.add('hidden');
-                resAIntersectCRow.classList.add('hidden');
-                document.getElementById('result-union').classList.remove('hidden');
+                resultSpans.A.textContent = a;
+                resultSpans.B.textContent = b;
+                resultSpans.A_union_B.textContent = a_or_b;
+                resultSpans.U.textContent = u;
+
+                resultRows.C.classList.add('hidden');
+                resultRows.B_union_C.classList.add('hidden');
+                resultRows.A_union_C.classList.add('hidden');
+                resultRows.A_intersect_B.classList.add('hidden');
+                resultRows.B_intersect_C.classList.add('hidden');
+                resultRows.A_intersect_C.classList.add('hidden');
+                resultRows.union.classList.add('hidden');
+                resultRows.A_union_B.classList.remove('hidden');
 
 
             } else {
@@ -233,38 +240,25 @@
                 const c = values.c_only + values.a_c_only + values.b_c_only + values.a_b_c;
                 const a_or_b_or_c = values.a_only + values.b_only + values.c_only + values.a_b_only + values.a_c_only + values.b_c_only + values.a_b_c;
                 const u = a_or_b_or_c + values.outside;
-
-                resA.textContent = a;
-                resB.textContent = b;
-                resC.textContent = c;
-                resUnionLabel.innerHTML = 'AまたはBまたはC (A&cup;B&cup;C)';
-                resUnionVal.textContent = a_or_b_or_c;
-                resU.textContent = u;
-
-                resCRow.classList.remove('hidden');
-                resAUnionBRow.classList.remove('hidden');
-                resBUnionCRow.classList.remove('hidden');
-                resAUnionCRow.classList.remove('hidden');
-                resAIntersectBRow.classList.remove('hidden');
-                resBIntersectCRow.classList.remove('hidden');
-                resAIntersectCRow.classList.remove('hidden');
-                document.getElementById('result-union').classList.remove('hidden');
-
-
                 const a_intersect_b = values.a_b_only + values.a_b_c;
                 const b_intersect_c = values.b_c_only + values.a_b_c;
                 const a_intersect_c = values.a_c_only + values.a_b_c;
-
                 const a_union_b = a + b - a_intersect_b;
                 const b_union_c = b + c - b_intersect_c;
                 const a_union_c = a + c - a_intersect_c;
-
-                resAUnionB.textContent = a_union_b;
-                resBUnionC.textContent = b_union_c;
-                resAUnionC.textContent = a_union_c;
-                resAIntersectB.textContent = a_intersect_b;
-                resBIntersectC.textContent = b_intersect_c;
-                resAIntersectC.textContent = a_intersect_c;
+                
+                resultSpans.A.textContent = a;
+                resultSpans.B.textContent = b;
+                resultSpans.C.textContent = c;
+                resultSpans.U.textContent = u;
+                resultSpans.A_union_B.textContent = a_union_b;
+                resultSpans.B_union_C.textContent = b_union_c;
+                resultSpans.A_union_C.textContent = a_union_c;
+                resultSpans.A_intersect_B.textContent = a_intersect_b;
+                resultSpans.B_intersect_C.textContent = b_intersect_c;
+                resultSpans.A_intersect_C.textContent = a_intersect_c;
+                resultSpans.union_label.innerHTML = 'AまたはBまたはC (A&cup;B&cup;C)';
+                resultSpans.union_val.textContent = a_or_b_or_c;
             }
         }
 
