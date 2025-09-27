@@ -260,7 +260,14 @@
                 ctx.textBaseline = 'top';
                 const uLabelX = drawRect.x + (labelFontSize * 0.25);
                 const uLabelY = drawRect.y + (labelFontSize * 0.25);
-                ctx.fillText('U', uLabelX, uLabelY);
+                
+                let uLabelText = 'U';
+                if (mode === 'two' && values.outside === 0) {
+                    uLabelText = 'U = A∪B';
+                } else if (mode === 'three' && values.outside === 0) {
+                    uLabelText = 'U = A∪B∪C';
+                }
+                ctx.fillText(uLabelText, uLabelX, uLabelY);
 
                 // --- モードに応じて各ベン図を描画 ---
                 if (mode === 'two') {
